@@ -11,6 +11,10 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -75,11 +79,11 @@ WSGI_APPLICATION = 'pacilflix.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'basdat-c8', 
-        'USER': 'postgres',
-        'PASSWORD': 'asterisk2',
-        'HOST': '127.0.0.1', 
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'postgres', 
+        "USER": os.getenv("DB_USER"),
+        "PASSWORD": os.getenv("DB_PASSWORD"),
+        'HOST': 'aws-0-ap-southeast-1.pooler.supabase.com', 
         'PORT': '5432',
     }
 }

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Navbar Example</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+  body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+  }
+  .navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: floralwhite;
+    color: white;
+    padding: 10px 20px;
+  }
+  .navbar a {
+    color: black;
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .navbar a#brand span.pacil {
+    color: blue;
+  }
+  .navbar a#brand span.flix {
+    color: red;
+  }
+</style>
+</head>
+<body>
+<div class="navbar">
+  <a id="brand" href="#"><span class="pacil">Pacil</span><span class="flix">Flix</span></a>
+  <a href="#">Trailer Tayangan</a>
+</div>
+</body>
+</html>

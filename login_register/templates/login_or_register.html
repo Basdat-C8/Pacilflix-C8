@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}PacilFlix - C8{% endblock %}
+
+{% block content %}
+<style>
+  /* Styles specific to this template */
+  body, html {
+    background-color: white; /* Ensure the entire background is white */
+  }
+
+  .container {
+    text-align: center;
+    background: white;
+    padding: 40px 60px;
+    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.1);
+    border-radius: 10px;
+    max-width: 400px;
+    width: 100%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .button-container {
+    display: flex;
+    flex-direction: column;
+  }
+
+  button {
+    margin-bottom: 10px; /* Space below each button */
+    padding: 12px 25px;
+    border: none;
+    background-color: #555;
+    color: white;
+    cursor: pointer;
+    border-radius: 5px;
+    font-weight: 600;
+    text-transform: uppercase;
+    transition: background-color 0.3s ease;
+    font-family: 'Poppins', sans-serif;
+  }
+
+  button:last-child {
+    margin-bottom: 0;
+  }
+
+  /* Adding a margin-top to the Register button for additional spacing */
+  form:nth-child(2) button {
+    margin-top: 20px; /* This adds a gap between the buttons */
+  }
+
+  button:hover {
+    background-color: #666;
+  }
+
+  h1 {
+    font-weight: 700;
+  }
+
+</style>
+
+<div class="container">
+  <h1>PacilFlix - C8</h1>
+  <div class="button-container">
+    <form action="{% url 'login' %}" method="get">
+      <button type="submit">Login</button>
+    </form>
+    <form action="{% url 'register' %}" method="get">
+      <button type="submit">Register</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

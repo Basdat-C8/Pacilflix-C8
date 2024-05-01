@@ -19,16 +19,31 @@
     color: white;
     padding: 10px 20px;
   }
-  .navbar a {
+  .navbar a, .navbar button {
     color: black;
+    background: none;
+    border: none;
     text-decoration: none;
     font-weight: 600;
+    cursor: pointer;
+  }
+  .navbar button {
+    padding: 10px 20px;  /* Slightly larger padding for visual comfort */
+    font-family: 'Poppins', sans-serif; /* Ensures font consistency */
+    transition: background-color 0.2s ease; /* Smooth transition for hover effect */
   }
   .navbar a#brand span.pacil {
     color: blue;
   }
   .navbar a#brand span.flix {
     color: red;
+  }
+  .navbar button.logout { /* Specific styles for the logout button */
+    background-color: red; /* Red background */
+    color: white; /* White text */
+  }
+  .navbar button.logout:hover {
+    background-color: darkred; /* Darker red on hover for better interaction feedback */
   }
 </style>
 </head>
@@ -39,8 +54,8 @@
   <a href="#">Daftar Kontributor</a>
   <a href="#">Kelola Daftar Favorit</a>
   <a href="#">Kelola Daftar Unduhan</a>
-  <a href="#">Kelola Langganan</a>
-  <a href="#">Logout</a>
+  <a href="#">Kelola Langganan </a>
+  <button class="logout" onclick="location.href='#'">Logout</button> <!-- Styled Logout button -->
 </div>
 </body>
 </html>

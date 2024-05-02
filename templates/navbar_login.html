@@ -16,7 +16,6 @@
     justify-content: space-between;
     align-items: center;
     background-color: floralwhite;
-    color: white;
     padding: 10px 20px;
   }
   .navbar a, .navbar button {
@@ -26,11 +25,7 @@
     text-decoration: none;
     font-weight: 600;
     cursor: pointer;
-  }
-  .navbar button {
-    padding: 10px 20px;  /* Slightly larger padding for visual comfort */
-    font-family: 'Poppins', sans-serif; /* Ensures font consistency */
-    transition: background-color 0.2s ease; /* Smooth transition for hover effect */
+    padding: 10px 20px;  /* Consistent padding */
   }
   .navbar a#brand span.pacil {
     color: blue;
@@ -38,12 +33,20 @@
   .navbar a#brand span.flix {
     color: red;
   }
+  .navbar a.user { /* Specific styles for the User_C8 link */
+    background-color: blue;
+    color: white;
+    border-radius: 5px; /* Optional: adds rounded corners */
+  }
+  .navbar a.user:hover {
+    background-color: darkblue; /* Darker blue on hover for better interaction feedback */
+  }
   .navbar button.logout { /* Specific styles for the logout button */
     background-color: red; /* Red background */
     color: white; /* White text */
   }
   .navbar button.logout:hover {
-    background-color: darkred; /* Darker red on hover for better interaction feedback */
+    background-color: darkred; /* Darker red on hover */
   }
 </style>
 </head>
@@ -54,7 +57,8 @@
   <a href="#">Daftar Kontributor</a>
   <a href="#">Kelola Daftar Favorit</a>
   <a href="#">Kelola Daftar Unduhan</a>
-  <a href="#">Kelola Langganan </a>
+  <a href="#">Kelola Langganan</a>
+  <a href="#" class="user">User_C8</a> <!-- Added class for styling -->
   <button class="logout" onclick="location.href='#'">Logout</button> <!-- Styled Logout button -->
 </div>
 </body>

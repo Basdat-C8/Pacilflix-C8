@@ -22,6 +22,10 @@
 
 <div class="container my-5">
     <h1 style="text-align: center;">Hasil Pencarian</h1>
+    <form id="searchForm" action="{% url 'tayangan:search_results_authenticated' %}" method="GET">
+        <input type="text" id="searchInput" class="form-control my-3" name="q" placeholder="Cari Tayangan berdasarkan judul...">
+        <button type="submit" class="btn btn-primary mb-3">Search</button>
+    </form>
     <table class="table table-hover">
         <thead>
             <tr>
@@ -34,14 +38,14 @@
         <tbody>
             <!-- Example hard-coded data -->
             <tr>
-                <td>Dummy Film 1</td>
-                <td>This is a dummy synopsis for film 1</td>
+                <td>Dummy Film 9</td>
+                <td>This is a dummy synopsis for film 9</td>
                 <td><a href="http://example.com">Watch Trailer</a></td>
                 <td>2022-01-01</td>
             </tr>
             <tr>
-                <td>Dummy Series 1</td>
-                <td>This is a dummy synopsis for Series 1</td>
+                <td>Dummy Series 9</td>
+                <td>This is a dummy synopsis for Series 9</td>
                 <td><a href="http://example.com">Watch Trailer</a></td>
                 <td>2022-01-01</td>
             </tr>

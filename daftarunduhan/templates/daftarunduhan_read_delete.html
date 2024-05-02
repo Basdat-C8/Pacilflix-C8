@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+    th, td{
+        text-align: center;
+        width: 25%;
+    }
+</style>
+
+<div class="container my-5">
+    <h1 style="text-align: center;">Daftar Unduhan</h1>
+    <div class="tab-pane fade show active">
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col">Judul</th>
+                <th scope="col">Waktu diunduh</th>
+                <th scope="col">Aksi</th>
+            </tr>
+            </thead>
+        
+            <tbody>
+            <tr>
+                <td scope="col">The Dark Knight</td>
+                <td scope="col">01/01/2024 12:30:00</td>
+                <td scope="col"><button class="btn btn-danger" onclick="">Delete</button></td>
+            </tr>
+
+            <tr>
+                <td scope="col">Whiplash</td>
+                <td scope="col">01/02/2024 05:10:11</td>
+                <td scope="col"><button class="btn btn-danger" onclick="">Delete</button></td>
+            </tr>
+
+            <tr>
+                <td scope="col">Cek Toko Sebelah</td>
+                <td scope="col">02/04/2024 01:33:11</td>
+                <td scope="col"><button class="btn btn-danger" onclick="">Delete</button></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock content %}

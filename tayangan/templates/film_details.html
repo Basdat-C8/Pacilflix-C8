@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block title %}Film Details{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 style="text-align: center;">Halaman Film</h2>
+    <div class="card">
+        <div class="card-body">
+            <h3 class="card-title">Judul: <span id="filmTitle">Dummy Film 9</span></h3>
+            <a href="#" class="btn btn-primary">Tonton</a>
+            <a href="#" class="btn btn-secondary">Unduh Tayangan</a>
+            <a href="#" class="btn btn-info">Tambahkan ke Favorit</a>
+            <p class="mt-3"><strong>Total View:</strong> <span id="totalViews">12345</span></p>
+            <p><strong>Rating Rata-Rata:</strong> <span id="averageRating">8.5</span></p>
+            <p><strong>Sinopsis:</strong> <span id="synopsis">This is a dummy synopsis for the film.</span></p>
+            <p><strong>Durasi Film:</strong> <span id="duration">120 minutes</span></p>
+            <p><strong>Tanggal Rilis Film:</strong> <span id="releaseDate">2022-01-01</span></p>
+            <p><strong>URL Film:</strong> <a href="#" id="filmUrl">Watch Here</a></p>
+            <p><strong>Genre:</strong> <ul id="genres">
+                <li>Action</li>
+                <li>Drama</li>
+            </ul></p>
+            <p><strong>Asal Negara:</strong> <span id="countryOrigin">USA</span></p>
+            <p><strong>Pemain:</strong>
+                <ul id="actors">
+                    <li>Actor Name 1</li>
+                    <li>Actor Name 2</li>
+                </ul>
+            </p>
+            <p><strong>Penulis Skenario:</strong>
+                <ul id="writers">
+                    <li>Writer Name 1</li>
+                    <li>Writer Name 2</li>
+                </ul>
+            </p>
+            <p><strong>Sutradara:</strong> <span id="director">Director Name</span></p>
+            
+            <!-- Bagian Ulasan -->
+            <div id="reviews">
+                <h4>Ulasan</h4>
+                <form>
+                    <div class="mb-3">
+                        <label for="reviewText" class="form-label">Your Review</label>
+                        <textarea class="form-control" id="reviewText" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="rating" class="form-label">Rating</label>
+                        <select class="form-select" id="rating">
+                            <option selected>Choose...</option>
+                            <option value="1">&#9733;&#9734;&#9734;&#9734;&#9734;</option>
+                            <option value="2">&#9733;&#9733;&#9734;&#9734;&#9734;</option>
+                            <option value="3">&#9733;&#9733;&#9733;&#9734;&#9734;</option>
+                            <option value="4">&#9733;&#9733;&#9733;&#9733;&#9734;</option>
+                            <option value="5">&#9733;&#9733;&#9733;&#9733;&#9733;</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+                <ul class="list-unstyled mt-3">
+                    <!-- Static example data -->
+                    <li><strong>User 1</strong> (Rated: <span>&#9733;&#9733;&#9733;&#9733;&#9734;</span>): "Great movie but a bit long."
+                        <br><small class="text-muted">Posted on: January 1, 2022 at 12:00 PM</small></li>
+                    <li><strong>User 2</strong> (Rated: <span>&#9733;&#9733;&#9733;&#9733;&#9733;</span>): "Absolutely loved it! Must watch!"
+                        <br><small class="text-muted">Posted on: January 2, 2022 at 1:00 PM</small></li>
+                    <!-- Add more static reviews as needed -->
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

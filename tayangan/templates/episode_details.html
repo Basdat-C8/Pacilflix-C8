@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}Episode Details{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 style="text-align: center;">Halaman Episode</h2>
+    <div class="card">
+        <div class="card-body">
+            <h3 class="card-title">Judul: <span id="episodeTitle">Episode 1</span></h3>
+            <h5>Sub Judul: <span id="episodeSubTitle">The Beginning</span></h5>
+            
+            <!-- Conditional display of watch button based on example condition -->
+            <a href="https://example.com/watch_episode" class="btn btn-primary">Tonton</a>
+
+            <h4>Episode Lainnya:</h4>
+            <ul>
+                <!-- Example links for other episodes -->
+                <li><a href="#">Episode 2</a></li>
+            </ul>
+
+            <p><strong>Sinopsis Episode:</strong> <span id="synopsis">In this episode, the journey begins as the characters face their first major challenge.</span></p>
+            <p><strong>Durasi Episode:</strong> <span id="duration">45 minutes</span></p>
+            <p><strong>URL Episode:</strong> <a href="https://example.com/watch_episode" id="episodeUrl">Watch Here</a></p>
+            <p><strong>Tanggal Rilis Episode:</strong> <span id="releaseDate">2024-01-01</span></p>
+        </div>
+    </div>
+</div>
+{% endblock %}

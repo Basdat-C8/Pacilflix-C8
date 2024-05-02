@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'login_register',
     'main',
+    'tayangan',
 ]
 
 MIDDLEWARE = [

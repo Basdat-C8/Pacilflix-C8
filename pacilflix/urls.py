@@ -8,4 +8,7 @@ urlpatterns = [
     path('login_register/', include('login_register.urls')),
     path('main/', include('main.urls')),
     path('tayangan/', include('tayangan.urls')),
+    path('daftarfavorit/', include('daftarfavorit.urls')),
+    path('daftarunduhan/', include('daftarunduhan.urls')),
+    path('langganan/', include('langganan.urls')),
 ]

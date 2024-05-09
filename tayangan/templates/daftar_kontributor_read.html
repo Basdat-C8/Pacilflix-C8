@@ -1,0 +1,191 @@
+{% extends 'base.html' %}
+
+
+{% block title %}PacilFlix - Kontributor{% endblock %}
+
+{% block content %}
+<style>
+    /* Custom styles for the trailer page */
+    .tab-content {
+      margin-top: 20px;
+    }
+    .table-hover tbody tr:hover {
+      background-color: #f5f5f5;
+    }
+    a {
+      text-decoration: none;
+      color: #007bff;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    th, td{
+        text-align: center;
+        width: 25%;
+    }
+</style>
+
+<div class="container my-5">
+    <h1 style="text-align: center;">Daftar Kontributor</h1>
+    <h3>Tipe Kontributor</h3>
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <a class="nav-link active" data-bs-toggle="tab" href="#sutradara">Sutradara</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="tab" href="#pemain">Pemain</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="tab" href="#penulisSkenario">Penulis Skenario</a>
+        </li>
+    </ul>
+
+    <div class="tab-content">
+        <div class="tab-pane fade show active" id="sutradara">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th scope="col">Nama</th>
+                        <th scope="col">Tipe</th>
+                        <th scope="col">Jenis Kelamin</th>
+                        <th scope="col">Kewarganegaraan</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td scope="col">Jinbo Masato</td>
+                        <td scope="col">Sutradara</td>
+                        <td scope="col">Laki-laki</td>
+                        <td scope="col">Jepang</td>
+                    </tr>
+                </tbody>
+                <tbody>
+                    <tr>
+                        <td scope="col">Takakuwa Hajime</td>
+                        <td scope="col">Sutradara</td>
+                        <td scope="col">Laki-laki</td>
+                        <td scope="col">Jepang</td>
+                    </tr>
+                </tbody>
+                <tbody>
+                    <tr>
+                        <td scope="col">Kimura Yoshitsugu</td>
+                        <td scope="col">Sutradara</td>
+                        <td scope="col">Laki-laki</td>
+                        <td scope="col">Jepang</td>
+                    </tr>
+                </tbody>
+                <tbody>
+                    {% for i in range %}
+                    <tr>
+                        <th scope="row">{{ forloop.counter }}</th>
+                        <td>Nama Sutradara {{ forloop.counter }}</td>
+                        <td>Sutradara</td>
+                        <td>Laki-laki/Perempuan</td>
+                        <td>Negara {{ forloop.counter }}</td>
+                    </tr>
+                    {% endfor %}
+                    <!-- Data lain -->
+                </tbody>
+            </table>
+        </div>
+        <div class="tab-pane fade" id="pemain">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th scope="col">Nama</th>
+                        <th scope="col">Tipe</th>
+                        <th scope="col">Jenis Kelamin</th>
+                        <th scope="col">Kewarganegaraan</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td scope="col">Matsuoka Yoshitsugu</td>
+                        <td scope="col">Pemain</td>
+                        <td scope="col">Laki-laki</td>
+                        <td scope="col">Jepang</td>
+                    </tr>
+                </tbody>
+                <tbody>
+                    <tr>
+                        <td scope="col">Itou Miku</td>
+                        <td scope="col">Pemain</td>
+                        <td scope="col">Perempuan</td>
+                        <td scope="col">Jepang</td>
+                    </tr>
+                </tbody>
+                <tbody>
+                    <tr>
+                        <td scope="col">Minase Inori</td>
+                        <td scope="col">Pemain</td>
+                        <td scope="col">Perempuan</td>
+                        <td scope="col">Jepang</td>
+                    </tr>
+                </tbody>
+                <tbody>
+                    {% for i in range %}
+                    <tr>
+                        <th scope="row">{{ forloop.counter }}</th>
+                        <td>Nama Pemain {{ forloop.counter }}</td>
+                        <td>Pemain</td>
+                        <td>Laki-laki/Perempuan</td>
+                        <td>Negara {{ forloop.counter }}</td>
+                    </tr>
+                    {% endfor %}
+                    <!-- Data lain -->
+                </tbody>
+            </table>
+        </div>
+        <div class="tab-pane fade" id="penulisSkenario">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th scope="col">Nama</th>
+                        <th scope="col">Tipe</th>
+                        <th scope="col">Jenis Kelamin</th>
+                        <th scope="col">Kewarganegaraan</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td scope="col">Haruba Negi</td>
+                        <td scope="col">Penulis Skenario</td>
+                        <td scope="col">Laki-laki</td>
+                        <td scope="col">Jepang</td>
+                    </tr>
+                </tbody>
+                <tbody>
+                    <tr>
+                        <td scope="col">Satou Takuya</td>
+                        <td scope="col">Penulis Skenario</td>
+                        <td scope="col">Laki-laki</td>
+                        <td scope="col">Jepang</td>
+                    </tr>
+                </tbody>
+                <tbody>
+                    <tr>
+                        <td scope="col">Yoshida Taizou</td>
+                        <td scope="col">Penulis Skenario</td>
+                        <td scope="col">Laki-laki</td>
+                        <td scope="col">Jepang</td>
+                    </tr>
+                </tbody>
+                <tbody>
+                    {% for i in range %}
+                    <tr>
+                        <th scope="row">{{ forloop.counter }}</th>
+                        <td>Nama Penulis Skenario {{ forloop.counter }}</td>
+                        <td>Penulis Skenario</td>
+                        <td>Laki-laki/Perempuan</td>
+                        <td>Negara {{ forloop.counter }}</td>
+                    </tr>
+                    {% endfor %}
+                    <!-- Data lain -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

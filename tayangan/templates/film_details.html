@@ -9,8 +9,8 @@
         <div class="card-body">
             <h3 class="card-title">Judul: <span id="filmTitle">Dummy Film 9</span></h3>
             <a href="#" class="btn btn-primary">Tonton</a>
-            <a href="#" class="btn btn-secondary">Unduh Tayangan</a>
-            <a href="#" class="btn btn-info">Tambahkan ke Favorit</a>
+            <a href="#" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#downloadModal">Unduh Tayangan</a>
+            <a href="#" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#favoriteModal">Tambahkan ke Favorit</a>
             <p class="mt-3"><strong>Total View:</strong> <span id="totalViews">12345</span></p>
             <p><strong>Rating Rata-Rata:</strong> <span id="averageRating">8.5</span></p>
             <p><strong>Sinopsis:</strong> <span id="synopsis">This is a dummy synopsis for the film.</span></p>
@@ -65,6 +65,49 @@
                         <br><small class="text-muted">Posted on: January 2, 2022 at 1:00 PM</small></li>
                     <!-- Add more static reviews as needed -->
                 </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="favoriteModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5">Tambahkan ke Daftar Favorit</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Judul daftar favorit:</p>
+                    <select name="namaDaftarFavorit">
+                        <option value="80s_stuff">80s stuff</option>
+                        <option value="sinetron_india">sinetron india</option>
+                        <option value="early_2000s_anime">early 2000s anime</option>
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <div style="width: 100%; text-align: center;">
+                        <button type="button" class="btn btn-info" data-bs-dismiss="modal">Tambah</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="downloadModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5">Sukses menambahkan tayangan ke daftar unduhan</h1>
+                    <button type="button" class="btn-close ml-50" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Selamat! Anda telah berhasil mengunduh [Judul Tayangan] dan akan berlaku hingga [current time + 7 hari]. Cek informasi selengkapnya pada halaman daftar unduhan.</p>
+                </div>
+                <div class="modal-footer">
+                    <div style="width: 100%; text-align: center;">
+                        <a type="button" class="btn btn-info" href="/daftarunduhan" id="keDaftarUnduhanButton">Ke Daftar Unduhan</a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

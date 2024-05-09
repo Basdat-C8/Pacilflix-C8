@@ -30,6 +30,10 @@ def show_episode_details(request):
     context = {'use_navbar2': True}
     return render(request, "episode_details.html", context)
 
+def show_daftar_kontributor(request):
+    context = {'use_navbar2': True}
+    return render(request, "daftar_kontributor_read.html", context)
+
 # def search_results(request):
 #     query = request.GET.get('q')
 #     if query:

@@ -1,7 +1,5 @@
 from django.shortcuts import render
 
-from tayangan.models import Tayangan
-
 # Create your views here.
 def show_tayangan(request):
     context = {'use_navbar2': True,

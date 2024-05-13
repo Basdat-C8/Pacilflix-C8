@@ -41,11 +41,15 @@
   .navbar a.user:hover {
     background-color: darkblue; /* Darker blue on hover for better interaction feedback */
   }
-  .navbar button.logout { /* Specific styles for the logout button */
+  .navbar a.logout { /* Specific styles for the logout button when using <a> tag */
     background-color: red; /* Red background */
     color: white; /* White text */
+    padding: 10px 20px;
+    border-radius: 5px;
+    display: inline-block; /* Ensures padding and border-radius are applied */
+    text-align: center;
   }
-  .navbar button.logout:hover {
+  .navbar a.logout:hover {
     background-color: darkred; /* Darker red on hover */
   }
 </style>
@@ -58,8 +62,8 @@
   <a href="#">Kelola Daftar Favorit</a>
   <a href="#">Kelola Daftar Unduhan</a>
   <a href="#">Kelola Langganan</a>
-  <a href="#" class="user">User_C8</a> <!-- Added class for styling -->
-  <button class="logout" onclick="location.href='#'">Logout</button> <!-- Styled Logout button -->
+  <a href="#" class="user">{{ username }}</a>
+  <a href="{% url 'logout' %}" class="logout">Logout</a> <!-- Updated link for logout -->
 </div>
 </body>
 </html>

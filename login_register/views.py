@@ -7,32 +7,33 @@ def login_or_register(request):
     return render(request, 'login_or_register.html')
 
 def login_view(request):
-    context = {'error': False}  
+    context = {'error': False}
     if request.method == "POST":
         username = request.POST.get('username')
         password = request.POST.get('password')
         if authenticate_user(username, password):
             request.session['username'] = username  
-            return redirect('dummy')  #<-----------------------------------------INI REDIRECT KE HALAMAN YG DIMAU
+            return redirect('dummy')
         else:
-            context['error'] = True  # Set error to True if login fails
+            context['error'] = True
 
     return render(request, 'login.html', context)
 
-
-
 def register_view(request):
-    if request.method == "POST":
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        country = request.POST.get('country')
-        if register_user(username, password, country):
+    context = {'error': False}
+    if request.method == 'POST':
+        username = request.POST.get('username').strip()
+        password = request.POST.get('password').strip()
+        country = request.POST.get('country').strip()
+
+        if not username or not password or not country:
+            context['error'] = True
+        elif register_user(username, password, country):
             messages.success(request, "Registration successful!")
-            return redirect('login_or_register')  # Redirect to login_or_register
+            return redirect('login_or_register')
         else:
             messages.error(request, "Registration failed. Username may already exist.")
-    return render(request, 'register.html')
-
+    return render(request, 'register.html', context)
 
 
 def home(request):
@@ -43,15 +44,11 @@ def dummy(request):
                'username': request.session.get('username')}
     return render(request, 'dummy.html', context)
 
-
-
-
 def logout_view(request):
-    logout(request)  # This will clear the session
-
+    logout(request)
     storage = messages.get_messages(request)
     for message in storage:
         storage.used = True
-    
+
     messages.success(request, "You have successfully logged out.")
-    return redirect('login_or_register')  # Redirect to the login/register page
+    return redirect('login_or_register')

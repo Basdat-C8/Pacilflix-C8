@@ -26,19 +26,18 @@ def register_user(username, password, country):
     if conn is not None:
         try:
             cursor = conn.cursor()
-            hashed_password = password  # Here, you should implement actual password hashing
+            hashed_password = password
             query = "INSERT INTO pengguna (username, password, negara_asal) VALUES (%s, %s, %s);"
             cursor.execute(query, (username, hashed_password, country))
             conn.commit()
-            return True  # Ensure this is reached on success
+            return True
         except (Exception, psycopg2.DatabaseError) as error:
             logger.error("Error in register_user: %s", error)
-            return False  # Properly handling errors
+            return False
         finally:
             cursor.close()
             conn.close()
-    return False  # Ensure connection failure handling
-
+    return False
 
 def authenticate_user(username, password):
     conn = create_connection()
@@ -48,7 +47,7 @@ def authenticate_user(username, password):
                 query = "SELECT password FROM pengguna WHERE username = %s;"
                 cursor.execute(query, (username,))
                 user = cursor.fetchone()
-                if user and user['password'] == password:  # Replace with password check if using hashing
+                if user and user['password'] == password:
                     return True
                 else:
                     return False
@@ -57,5 +56,4 @@ def authenticate_user(username, password):
             return False
         finally:
             conn.close()
-    else:
-        return False
+    return False

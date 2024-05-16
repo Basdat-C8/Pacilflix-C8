@@ -40,7 +40,7 @@
                 </tr>
                 </thead>`
             daftarfavorits.forEach((item) => {
-                htmlString += `\n<tr>
+                htmlString += `\n<tr onclick=visitDaftarFavorit('${item.timestamp}')>
                     <td>${item.judul}</td>
                     <td>${item.timestamp.replaceAll("T", ", ")}</td>
                     <td>
@@ -55,13 +55,18 @@
                     </td>
                     </tr>`
                 })
-            htmlString += `</table>`
         }
                 
         document.getElementById("daftarfavorit-table").innerHTML = htmlString
     }
             
     refreshDaftarFavorit()
+
+    async function visitDaftarFavorit(timestamp){
+        console.log(timestamp)
+        window.location.href = `{% url 'daftarfavorit:show_daftar_favorit_tayangan' '123' %}`.replace('123', timestamp);
+    }
+
 </script>
 
 {% endblock content %}

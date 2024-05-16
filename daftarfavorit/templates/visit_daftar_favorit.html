@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+    th, td{
+        text-align: center;
+        width: 25%;
+    }
+</style>
+
+<div class="container my-5">
+    <h1 style="text-align: center;">{{ judul_daftar_favorit }}</h1>
+    <div class="tab-pane fade show active" id="tayangan-table-container">
+        <table class="table table-hover" id="tayangan-table">
+            <thead>
+                <tr>
+                    <th scope="col">Judul Tayangan</th>
+                    <th scope="col">Aksi</th>
+                </tr>
+            </thead>
+            {% for data in tayangan %}
+            <tr>
+                <td>{{ data.judul }}</td>
+                <td>
+                    <center>
+                        <form action="{% url 'daftarfavorit:delete_tayangan' %}" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="timestamp" value="${data.id_tayangan}">
+                            <input type="hidden" name="timestamp" value="${data.timestamp}">
+                            <input type="hidden" name="username" value="${data.username}">
+                            <button type="submit" class="btn btn-danger">Delete</button>
+                        </form>
+                    </center>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+
+{% endblock content %}

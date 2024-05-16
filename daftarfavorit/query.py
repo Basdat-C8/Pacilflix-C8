@@ -33,3 +33,22 @@ def query_delete_daftar_favorit(timestamp, username):
 
     cursor.execute(f"delete from daftar_favorit where username='{username}' AND timestamp='{timestamp}';")
     connection.commit()
+
+def query_get_specific_daftar_favorit(timestamp, username):
+    connection = create_connection()
+    cursor = connection.cursor()
+
+    cursor.execute(f"select * from daftar_favorit where username='{username}' AND timestamp='{timestamp}';")
+    return cursor.fetchone()
+
+def query_get_tayangan_daftar_favorit(timestamp, username):
+    connection = create_connection()
+    cursor = connection.cursor()
+
+    cursor.execute(rf""" 
+        select b.judul, a.id_tayangan, a.timestamp, a.username
+        from (select * from tayangan_memiliki_daftar_favorit where timestamp='{timestamp}' AND username='{username}') AS a JOIN
+        (select judul, id from tayangan) AS b ON b.id=a.id_tayangan;
+    """)
+    # cursor.execute(f"select * from tayangan_memiliki_daftar_favorit where timestamp='{timestamp}' AND username='{username}';")
+    return cursor.fetchall()

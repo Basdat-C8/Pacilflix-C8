@@ -16,6 +16,32 @@ def show_daftar_favorit(request):
     context = {'use_navbar2': True, 'username':request.session.get('username')}
     return render(request, 'daftarfavorit_read_delete.html', context)
 
+def show_daftar_favorit_tayangan(request, timestamp):
+    username = ''
+    try:
+        username = request.session.get('username')
+        print('user : ',username)
+    except:
+        return HttpResponseRedirect(reverse("authentication:login_user"))
+    
+    daftar_favorit = query_get_specific_daftar_favorit(timestamp, username)
+    get_tayangan = query_get_tayangan_daftar_favorit(timestamp, username)
+    judul_daftar_favorit = daftar_favorit[2]
+
+    tayangan = []
+    for data in get_tayangan:
+        tayangan.append({'judul' : data[0],
+                         'id_tayangan': data[1],
+                                'timestamp' : data[2],
+                                'username': data[3]}
+                                )
+    
+    context = {'use_navbar2': True, 
+               'username':request.session.get('username'), 
+               'judul_daftar_favorit':judul_daftar_favorit,
+               'tayangan':tayangan}
+    return render(request, 'visit_daftar_favorit.html', context)
+
 def get_all_users_daftar_favorit(request):
     username = ''
 
@@ -32,6 +58,26 @@ def get_all_users_daftar_favorit(request):
         daftar_favorit.append({'timestamp' : data[0],
                                 'username' : data[1],
                                 'judul': data[2]}
+                                )
+
+    return JsonResponse({'daftar_favorit':daftar_favorit})
+
+def get_tayangan_daftar_favorit(request, timestamp):
+    username = ''
+
+    try:
+        username = request.session.get('username')
+        print('user : ',username)
+    except:
+        return HttpResponseRedirect(reverse("authentication:login_user"))
+    
+    get_tayangan = query_get_tayangan_daftar_favorit(timestamp, username)
+
+    tayangan = []
+    for data in get_tayangan:
+        tayangan.append({'id_tayangan' : data[0],
+                                'timestamp' : data[1],
+                                'username': data[2]}
                                 )
 
     return JsonResponse({'daftar_favorit':daftar_favorit})

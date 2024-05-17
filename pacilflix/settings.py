@@ -27,10 +27,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-@p9ti&fs(y9$&t#@k3+l&al6tt6cpdqsjbfw^c5agm@lwrn+*4'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+ALLOWED_HOSTS = ['pacilflix-c8-production.up.railway.app', 'localhost', '127.0.0.1']
 
-ALLOWED_HOSTS = ["*"]
+CSRF_TRUSTED_ORIGINS = ['https://pacilflix-c8-production.up.railway.app', 'http://localhost', 'http://127.0.0.1']
 
+DEBUG = False
 
 # Application definition
 
@@ -119,7 +120,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Etc/GMT-7'
 
 USE_I18N = True
 

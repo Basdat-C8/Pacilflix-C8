@@ -1,82 +1,162 @@
 {% extends 'base.html' %}
 
-{% block title %}Halaman Series{% endblock %}
+{% block title %}Series Details{% endblock %}
 
 {% block content %}
+{% load calculate %}
 <div class="container mt-5">
     <h2 style="text-align: center;">Halaman Series</h2>
-    <div class="card">
-        <div class="card-body">
-            <h3 class="card-title">Judul: <span id="seriesTitle">Dummy Series 9</span></h3>
-            
-            <!-- Episodes Links (Dynamically generated) -->
-            <p><strong>Episodes:</strong></p>
-            <ul>
-                <li><a href="/tayangan/episode_details">Episode 1</a></li>
-                <li><a href="/tayangan/episode_details">Episode 2</a></li>
-                <!-- Add more episodes as needed -->
-            </ul>
+    <br>
+        <div class="row">
+            <!-- Series Title and Actions -->
+            <div class="col-12">
+                <div class="card mb-3">
+                    <div class="card-body text">
+                        <h3 class="card-title">Judul: <span id="seriesTitle">{{ series.judul }}</span></h3>
 
-            <a href="#" class="btn btn-primary">Tonton</a>
-            <a href="#" class="btn btn-secondary">Unduh Tayangan</a>
-            <a href="#" class="btn btn-info">Tambahkan ke Favorit</a>
+                        <p><strong>Episodes:</strong></p>
+                        <ul>
+                            {% for episode in episodes %}
+                                <li><a href="{% url 'tayangan:show_episode_details' id_series=episode.id_series sub_judul=episode.sub_judul %}"> Episode {{ episode.listing_order }}</a></li>
+                            {% endfor %}
+                        </ul>
 
-            <p><strong>Total View:</strong> <span id="totalViews">54321</span></p>
-            <p><strong>Rating Rata-Rata:</strong> <span id="averageRating">9.0</span></p>
-            <p><strong>Sinopsis:</strong> <span id="synopsis">This is a dummy synopsis for the series.</span></p>
-            <p><strong>Genre:</strong>
-                <ul id="genres">
-                    <li>Thriller</li>
-                    <li>Mystery</li>
-                    <!-- Add more genres as needed -->
-                </ul>
-            </p>
-            <p><strong>Asal Negara:</strong> <span id="countryOrigin">UK</span></p>
-            <p><strong>Pemain:</strong>
-                <ul id="actors">
-                    <li>Actor Name 1</li>
-                    <li>Actor Name 2</li>
-                    <!-- Add more actors as needed -->
-                </ul>
-            </p>
-            <p><strong>Penulis Skenario:</strong>
-                <ul id="writers">
-                    <li>Writer Name 1</li>
-                    <li>Writer Name 2</li>
-                    <!-- Add more writers as needed -->
-                </ul>
-            </p>
-            <p><strong>Sutradara:</strong> <span id="director">Director Name</span></p>
-
-            <!-- Bagian Ulasan -->
-            <div id="reviews">
-                <h4>Ulasan</h4>
-                <form>
-                    <div class="mb-3">
-                        <label for="reviewText" class="form-label">Your Review</label>
-                        <textarea class="form-control" id="reviewText" rows="3"></textarea>
+                        <a href="#" class="btn btn-primary">Tonton</a>
+                        <a href="#" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#downloadModal">Unduh Tayangan</a>
+                        <a href="#" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#favoriteModal">Tambahkan ke Favorit</a>
                     </div>
-                    <div class="mb-3">
-                        <label for="rating" class="form-label">Rating</label>
-                        <select class="form-select" id="rating">
-                            <option selected>Choose...</option>
-                            <option value="1">&#9733;&#9734;&#9734;&#9734;&#9734;</option>
-                            <option value="2">&#9733;&#9733;&#9734;&#9734;&#9734;</option>
-                            <option value="3">&#9733;&#9733;&#9733;&#9734;&#9734;</option>
-                            <option value="4">&#9733;&#9733;&#9733;&#9733;&#9734;</option>
-                            <option value="5">&#9733;&#9733;&#9733;&#9733;&#9733;</option>
-                        </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="row d-flex">
+            <!-- Series Details -->
+            <div class="col-md-6">
+                <div class="card mb-3 flex-fill h-100">
+                    <div class="card-body">
+                        <p><strong>Total View:</strong> <span id="totalViews">{{ series.total_views }}</span></p>
+                        <p><strong>Rating Rata-Rata:</strong> <span id="averageRating">{% average_rating reviews %} &#9733;</span></p>
+                        <p><strong>Sinopsis:</strong> <span id="synopsis">{{ series.sinopsis }}</span></p>
                     </div>
-                    <button type="submit" class="btn btn-primary">Submit</button>
-                </form>
-                <ul class="list-unstyled mt-3">
-                    <!-- Static example data -->
-                    <li><strong>User 1</strong> (Rated: <span>&#9733;&#9733;&#9733;&#9733;&#9734;</span>): "Great movie but a bit long."
-                        <br><small class="text-muted">Posted on: January 1, 2022 at 12:00 PM</small></li>
-                    <li><strong>User 2</strong> (Rated: <span>&#9733;&#9733;&#9733;&#9733;&#9733;</span>): "Absolutely loved it! Must watch!"
-                        <br><small class="text-muted">Posted on: January 2, 2022 at 1:00 PM</small></li>
-                    <!-- Add more static reviews as needed -->
-                </ul>
+                </div>
+            </div>
+
+            <!-- Additional Information -->
+            <div class="col-md-6 d-flex">
+                <div class="card mb-3 flex-fill h-100">
+                    <div class="card-body">
+                        <p><strong>Genre:</strong></p>
+                        <ul id="genres">
+                            {% for genre in genres %}
+                            <li>{{ genre }}</li>
+                            {% endfor %}
+                        </ul>
+                        <p><strong>Asal Negara:</strong> <span id="countryOrigin">{{ series.asal_negara }}</span></p>
+                        <p><strong>Pemain:</strong></p>
+                        <ul id="actors">
+                            {% for actor in actors %}
+                            <li>{{ actor }}</li>
+                            {% endfor %}
+                        </ul>
+                        <p><strong>Penulis Skenario:</strong></p>
+                        <ul id="writers">
+                            {% for writer in writers %}
+                            <li>{{ writer }}</li>
+                            {% endfor %}
+                        </ul>
+                        <p><strong>Sutradara:</strong> <span id="sutradara">{{ sutradara }}</span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Reviews -->
+        <div class="row mt-5">
+            <div class="card">
+                <div class="card-body" id="reviews">
+                    <h4>Ulasan</h4>
+                    <form method="POST" action="{% url 'tayangan:submit_review_series' id_tayangan %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="reviewText" class="form-label">Your Review</label>
+                            <textarea class="form-control" id="reviewText" name="reviewText" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="rating" class="form-label">Rating</label>
+                            <select class="form-select" id="rating" name="rating">
+                                <option selected>Choose...</option>
+                                <option value="1">&#9733;&#9734;&#9734;&#9734;&#9734;</option>
+                                <option value="2">&#9733;&#9733;&#9734;&#9734;&#9734;</option>
+                                <option value="3">&#9733;&#9733;&#9733;&#9734;&#9734;</option>
+                                <option value="4">&#9733;&#9733;&#9733;&#9733;&#9734;</option>
+                                <option value="5">&#9733;&#9733;&#9733;&#9733;&#9733;</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </form>
+                    
+                    <ul class="list-unstyled mt-3">
+                        {% for review in reviews %}
+                            <li>
+                                <strong>{{ review.username }}</strong> (Rated: 
+                                <span>
+                                    {% for i in review.rating|to_range %}
+                                        &#9733; <!-- for star -->
+                                    {% endfor %}
+                                    {% for i in 5|to_range %}
+                                        {% if forloop.counter > review.rating %}
+                                            &#9734; <!-- for an empty star -->
+                                        {% endif %}
+                                    {% endfor %}
+                                </span>): "{{ review.deskripsi }}"
+                                <br><small class="text-muted">Posted on: {{ review.timestamp }}</small>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="favoriteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5">Tambahkan ke Daftar Favorit</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Judul daftar favorit:</p>
+                <select name="namaDaftarFavorit">
+                    <option value="80s_stuff">80s stuff</option>
+                    <option value="sinetron_india">sinetron india</option>
+                    <option value="early_2000s_anime">early 2000s anime</option>
+                </select>
+            </div>
+            <div class="modal-footer">
+                <div style="width: 100%; text-align: center;">
+                    <button type="button" class="btn btn-info" data-bs-dismiss="modal">Tambah</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <div class="modal fade" id="downloadModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5">Sukses menambahkan tayangan ke daftar unduhan</h1>
+                    <button type="button" class="btn-close ml-50" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Selamat! Anda telah berhasil mengunduh [Judul Tayangan] dan akan berlaku hingga [current time + 7 hari]. Cek informasi selengkapnya pada halaman daftar unduhan.</p>
+                </div>
+                <div class="modal-footer">
+                    <div style="width: 100%; text-align: center;">
+                        <a type="button" class="btn btn-info" href="/daftarunduhan" id="keDaftarUnduhanButton">Ke Daftar Unduhan</a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

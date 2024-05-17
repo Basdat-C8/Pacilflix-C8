@@ -4,26 +4,44 @@
 
 {% block content %}
 <style>
-  /* Custom styles for the trailer page */
-  .tab-content {
-    margin-top: 20px;
-  }
-  .table-hover tbody tr:hover {
-    background-color: #f5f5f5;
-  }
-  a {
-    text-decoration: none;
-    color: #007bff;
-  }
-  a:hover {
-    text-decoration: underline;
-  }
+    .tab-content {
+        margin-top: 20px;
+    }
+    .table-hover tbody tr:hover {
+        background-color: #f5f5f5;
+    }
+    a {
+        text-decoration: none;
+        color: #007bff;
+    }
+    a:hover {
+        text-decoration: underline;
+    }
+    .table th {
+        width: 20%;
+        white-space: nowrap;
+    }
+    .table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+    .table th, .table td {
+        border: 1px solid #ddd;
+        padding: 8px;
+    }
+    .table th {
+        padding-top: 12px;
+        padding-bottom: 12px;
+        text-align: left;
+        color: black;
+    }
 </style>
 
 <div class="container my-5">
     <h1 style="text-align: center;">Daftar Tayangan</h1>
-    <form id="searchForm" action="{% url 'tayangan:search_results_authenticated' %}" method="GET">
-        <input type="text" id="searchInput" class="form-control my-3" name="q" placeholder="Cari Tayangan berdasarkan judul...">
+    <br>
+    <form id="searchForm" action="{% url 'tayangan:search_results' %}" method="GET">
+        <input type="text" id="searchInput" class="form-control my-3" name="search" placeholder="Cari Tayangan berdasarkan judul..." value="{{ search_input }}">
         <button type="submit" class="btn btn-primary mb-3">Search</button>
     </form>
     <h3>This Week's Top 10</h3>
@@ -46,7 +64,9 @@
                         <th scope="col">Trailer URL</th>
                         <th scope="col">Tanggal Rilis Trailer</th>
                         <th scope="col">Total View 7 Hari Terakhir</th>
+                        {% if is_authenticated and has_active_package %}
                         <th scope="col">Tayangan</th>
+                        {% endif %}
                     </tr>
                 </thead>
                 <tbody>
@@ -74,7 +94,9 @@
                         <th scope="col">Trailer URL</th>
                         <th scope="col">Tanggal Rilis Trailer</th>
                         <th scope="col">Total View 7 Hari Terakhir</th>
+                        {% if is_authenticated and has_active_package %}
                         <th scope="col">Tayangan</th>
+                        {% endif %}
                     </tr>
                 </thead>
                 <tbody>
@@ -96,79 +118,90 @@
 
     <div>
         <h2>Films</h2>
-            <table id="filmsTable" class="table table-hover">
-                <thead>
-                    <tr>
-                        <th scope="col">Judul</th>
-                        <th scope="col">Sinopsis Trailer</th>
-                        <th scope="col">Trailer URL</th>
-                        <th scope="col">Tanggal Rilis Trailer</th>
-                        <th scope="col">Tayangan</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for i in range %}
-                    <tr>
-                        <td>Dummy Film {{ i }}</td>
-                        <td>This is a dummy synopsis for film {{ i }}.</td>
-                        <td><a href="#">Dummy URL for film {{ i }}</a></td>
-                        <td>2022-01-01</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-
+        <table id="filmsTable" class="table table-hover">
+            <thead>
+                <tr>
+                    <th scope="col">Judul</th>
+                    <th scope="col">Sinopsis Trailer</th>
+                    <th scope="col">Trailer URL</th>
+                    <th scope="col">Tanggal Rilis Trailer</th>
+                    {% if is_authenticated and has_active_package %}
+                    <th scope="col">Tayangan</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for film in films %}
+                <tr>
+                    <td>{{ film.judul }}</td>
+                    <td>{{ film.sinopsis_trailer }}</td>
+                    <td><a href="{{ film.url_video_trailer }}">Trailer URL</a></td>
+                    <td>{{ film.release_date_trailer }}</td>
+                    {% if is_authenticated and has_active_package %}
+                    <td>
+                        <a href="/tayangan/film_details/{{ film.id_tayangan }}/" class="btn btn-info">Show Tayangan</a>
+                    </td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    
         <h2>Series</h2>
-            <table id="seriesTable" class="table table-hover">
-                <thead>
-                    <tr>
-                        <th scope="col">Judul</th>
-                        <th scope="col">Sinopsis Trailer</th>
-                        <th scope="col">Trailer URL</th>
-                        <th scope="col">Tanggal Rilis Trailer</th>
-                        <th scope="col">Tayangan</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for i in range %}
-                    <tr>
-                        <td>Dummy Series {{ i }}</td>
-                        <td>This is a dummy synopsis for series {{ i }}.</td>
-                        <td><a href="#">Dummy URL for series {{ i }}</a></td>
-                        <td>2022-01-01</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+        <table id="seriesTable" class="table table-hover">
+            <thead>
+                <tr>
+                    <th scope="col">Judul</th>
+                    <th scope="col">Sinopsis Trailer</th>
+                    <th scope="col">Trailer URL</th>
+                    <th scope="col">Tanggal Rilis Trailer</th>
+                    {% if is_authenticated and has_active_package %}
+                    <th scope="col">Tayangan</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for serie in series %}
+                <tr>
+                    <td>{{ serie.judul }}</td>
+                    <td>{{ serie.sinopsis_trailer }}</td>
+                    <td><a href="{{ serie.url_video_trailer }}">Trailer URL</a></td>
+                    <td>{{ serie.release_date_trailer }}</td>
+                    {% if is_authenticated and has_active_package %}
+                    <td>
+                        <a href="/tayangan/series_details/{{ serie.id_tayangan }}/" class="btn btn-info">Show Tayangan</a>
+                    </td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 </div>
 
 <script>
+    var isAuthenticated = '{{ is_authenticated }}' == 'True'? true : '';
+
     function addDetailButtonsToTables(tableId, url) {
-        const isAuthenticated = true; // This would be dynamically set based on your authentication logic
         const tables = document.querySelectorAll(tableId);
         tables.forEach(table => {
             table.querySelectorAll('tbody tr').forEach(row => {
                 const cell = document.createElement('td');
-                if (isAuthenticated) {
-                    const link = document.createElement('a');
-                    link.textContent = 'Show Tayangan';
-                    link.className = 'btn btn-info';
-                    link.href = '/tayangan' + url;
-                    cell.appendChild(link);
-                } else {
-                    cell.textContent = '-';
-                }
+                const link = document.createElement('a');
+                link.textContent = 'Show Tayangan';
+                link.className = 'btn btn-info';
+                link.href = '/tayangan' + url;
+                cell.appendChild(link);
                 row.appendChild(cell);
             });
         });
     }
 
-    document.addEventListener('DOMContentLoaded', function() {
-        addDetailButtonsToTables('#globalTop10', '/film_details');
-        addDetailButtonsToTables('#countryTop10', '/film_details');
-        addDetailButtonsToTables('#filmsTable', '/film_details');
-        addDetailButtonsToTables('#seriesTable', '/series_details');
-    });
+    if (isAuthenticated) {
+        document.addEventListener('DOMContentLoaded', function() {
+            addDetailButtonsToTables('#globalTop10', '/film_details');
+            addDetailButtonsToTables('#countryTop10', '/film_details');
+        });
+    }
 </script>
 {% endblock %}

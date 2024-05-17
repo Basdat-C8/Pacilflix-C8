@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Navbar Example</title>
+<title>Navbar</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
 
@@ -57,7 +57,7 @@
 <body>
 <div class="navbar">
   <a id="brand" href="#"><span class="pacil">Pacil</span><span class="flix">Flix</span></a>
-  <a href="#">Daftar Tayangan</a>
+  <a href="{% url 'tayangan:show_read_tayangan' %}">Daftar Tayangan</a>
   <a href="#">Daftar Kontributor</a>
   <a href="#">Kelola Daftar Favorit</a>
   <a href="#">Kelola Daftar Unduhan</a>

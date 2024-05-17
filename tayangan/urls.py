@@ -1,6 +1,6 @@
 from django.urls import path
 from tayangan.views import show_tayangan, search_results, show_film_details, show_series_details, \
-    show_episode_details, show_daftar_kontributor, submit_review_film, submit_review_series, watch_episode
+    show_episode_details, show_daftar_kontributor, submit_review_film, submit_review_series, watch_episode, add_tayangan_to_daftar_favorit
 
 app_name = 'tayangan'
 
@@ -14,4 +14,5 @@ urlpatterns = [
     path('submit_review_film/<uuid:id_tayangan>/', submit_review_film, name='submit_review_film'),
     path('submit_review_series/<uuid:id_tayangan>/', submit_review_series, name='submit_review_series'),
     path('watch_episode/<uuid:id_series>/', watch_episode, name='watch_episode'),
+    path('add-tayangan', add_tayangan_to_daftar_favorit, name='add_tayangan_to_daftar_favorit'),
 ]

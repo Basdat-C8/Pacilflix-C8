@@ -1,10 +1,12 @@
 from django.shortcuts import redirect, render
 from django.conf import settings
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponseNotFound
 from django.urls import reverse
 from psycopg2.extras import RealDictCursor
 from django.utils import timezone
 import logging
+from .query import *
+import json
 
 from login_register.query import create_connection
 
@@ -391,3 +393,22 @@ def watch_episode(request, id_series):
 def show_daftar_kontributor(request):
     context = {'use_navbar2': True}
     return render(request, "daftar_kontributor_read.html", context)
+
+def add_tayangan_to_daftar_favorit(request):
+    username = ''
+
+    try:
+        username = request.session.get('username')
+        print('user : ',username)
+    except:
+        return HttpResponseRedirect(reverse("authentication:login_user"))
+    
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        id_tayangan = data.get('id_tayangan')
+        timestamp = data.get('timestamp')
+
+        query_add_to_daftar_favorit(username, timestamp, id_tayangan)
+        return HttpResponseRedirect(reverse("daftarfavorit:show_daftar_favorit_tayangan", args=[timestamp]))
+
+    return HttpResponseNotFound()

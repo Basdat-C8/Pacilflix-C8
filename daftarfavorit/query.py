@@ -20,19 +20,15 @@ def create_connection():
         logger.error("Error in connecting to the database: %s", e)
         return None
     
+
+# ========================================= get
+
 def query_get_all_users_daftar_favorit(username):
     connection = create_connection()
     cursor = connection.cursor()
 
     cursor.execute(f"select * from daftar_favorit where username='{username}';")
     return cursor.fetchall()
-
-def query_delete_daftar_favorit(timestamp, username):
-    connection = create_connection()
-    cursor = connection.cursor()
-
-    cursor.execute(f"delete from daftar_favorit where username='{username}' AND timestamp='{timestamp}';")
-    connection.commit()
 
 def query_get_specific_daftar_favorit(timestamp, username):
     connection = create_connection()
@@ -50,5 +46,22 @@ def query_get_tayangan_daftar_favorit(timestamp, username):
         from (select * from tayangan_memiliki_daftar_favorit where timestamp='{timestamp}' AND username='{username}') AS a JOIN
         (select judul, id from tayangan) AS b ON b.id=a.id_tayangan;
     """)
-    # cursor.execute(f"select * from tayangan_memiliki_daftar_favorit where timestamp='{timestamp}' AND username='{username}';")
     return cursor.fetchall()
+
+
+# ========================================= delete
+
+def query_delete_daftar_favorit(timestamp, username):
+    connection = create_connection()
+    cursor = connection.cursor()
+
+    cursor.execute(f"delete from daftar_favorit where username='{username}' AND timestamp='{timestamp}';")
+    connection.commit()
+
+def query_delete_tayangan(id_tayangan, timestamp, username):
+    connection = create_connection()
+    cursor = connection.cursor()
+
+    cursor.execute(f"delete from tayangan_memiliki_daftar_favorit where id_tayangan='{id_tayangan}' AND username='{username}' AND timestamp='{timestamp}';")
+    connection.commit()
+

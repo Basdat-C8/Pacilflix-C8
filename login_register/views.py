@@ -13,7 +13,7 @@ def login_view(request):
         password = request.POST.get('password')
         if authenticate_user(username, password):
             request.session['username'] = username  
-            return redirect('dummy')
+            return redirect('tayangan:show_read_tayangan') # Redirect ke daftar tayangan
         else:
             context['error'] = True
 

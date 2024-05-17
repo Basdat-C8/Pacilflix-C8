@@ -5,25 +5,75 @@
 {% block content %}
 <div class="container mt-5">
     <h2 style="text-align: center;">Halaman Episode</h2>
+    <br>
     <div class="card">
         <div class="card-body">
-            <h3 class="card-title">Judul: <span id="episodeTitle">Episode 1</span></h3>
-            <h5>Sub Judul: <span id="episodeSubTitle">The Beginning</span></h5>
-            
-            <!-- Conditional display of watch button based on example condition -->
-            <a href="https://example.com/watch_episode" class="btn btn-primary">Tonton</a>
+            <h3 class="card-title">Judul: <span id="episodeTitle">{{ series_name }}</span></h3>
+            <h5>Sub Judul: <span id="episodeSubTitle">{{ episode.sub_judul }}</span></h5>
 
+            <br>
+            <form method="POST" action="{% url 'tayangan:watch_episode' episode.id_series %}">
+                {% csrf_token %}
+                <label for="progress">Progress:</label>
+                <input type="range" id="progress" name="progress" min="0" max="100" value="0" oninput="updateProgressValue()">
+                <span id="progressValue">0%</span>
+                <br><br><br>
+                <input type="submit" value="Tonton" class="btn btn-primary">
+            </form>
+            <br>
             <h4>Episode Lainnya:</h4>
             <ul>
-                <!-- Example links for other episodes -->
-                <li><a href="#">Episode 2</a></li>
+                {% for ep in episodes %}
+                        <li><a href="{% url 'tayangan:show_episode_details' id_series=ep.id_series sub_judul=ep.sub_judul %}">Episode {{ ep.listing_order }}</a></li> 
+                {% endfor %}
             </ul>
 
-            <p><strong>Sinopsis Episode:</strong> <span id="synopsis">In this episode, the journey begins as the characters face their first major challenge.</span></p>
-            <p><strong>Durasi Episode:</strong> <span id="duration">45 minutes</span></p>
-            <p><strong>URL Episode:</strong> <a href="https://example.com/watch_episode" id="episodeUrl">Watch Here</a></p>
-            <p><strong>Tanggal Rilis Episode:</strong> <span id="releaseDate">2024-01-01</span></p>
+            <p><strong>Sinopsis Episode:</strong> <span id="synopsis">{{ episode.sinopsis }}</span></p>
+            <p><strong>Durasi Episode:</strong> <span id="duration">{{ episode.durasi }} minutes</span></p>
+            <p><strong>URL Episode:</strong> <a href="{{ episode.url_video }}" id="episodeUrl">Watch Here</a></p>
+            <p><strong>Tanggal Rilis Episode:</strong> <span id="releaseDate">{{ episode.release_date }}</span></p>
         </div>
     </div>
 </div>
+
+<style>
+    input[type="range"] {
+        -webkit-appearance: none;
+        width: 100%;
+        height: 15px;
+        border-radius: 5px;
+        background: linear-gradient(90deg, rgba(62,126,255,1) 0%, rgba(62,126,255,1) var(--progress-percent), rgba(214,214,214,1) var(--progress-percent), rgba(214,214,214,1) 100%);
+        outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 25px;
+        height: 25px;
+        border-radius: 50%;
+        background: #3E7EFF;
+        cursor: pointer;
+    }
+
+    input[type="range"]::-moz-range-thumb {
+        width: 25px;
+        height: 25px;
+        border-radius: 50%;
+        background: #3E7EFF;
+        cursor: pointer;
+    }
+</style>
+
+<script>
+    function updateProgressValue() {
+        var progress = document.getElementById('progress');
+        var progressValue = document.getElementById('progressValue');
+        var value = progress.value;
+        progressValue.innerText = value + '%';
+        progress.style.setProperty('--progress-percent', value + '%');
+    }
+
+    window.onload = updateProgressValue;
+</script>
 {% endblock %}

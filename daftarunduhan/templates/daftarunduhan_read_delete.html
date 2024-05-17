@@ -12,36 +12,56 @@
 <div class="container my-5">
     <h1 style="text-align: center;">Daftar Unduhan</h1>
     <div class="tab-pane fade show active">
-        <table class="table">
-            <thead>
-            <tr>
-                <th scope="col">Judul</th>
-                <th scope="col">Waktu diunduh</th>
-                <th scope="col">Aksi</th>
-            </tr>
-            </thead>
-        
-            <tbody>
-            <tr>
-                <td scope="col">The Dark Knight</td>
-                <td scope="col">01/01/2024 12:30:00</td>
-                <td scope="col"><button class="btn btn-danger" onclick="">Delete</button></td>
-            </tr>
-
-            <tr>
-                <td scope="col">Whiplash</td>
-                <td scope="col">01/02/2024 05:10:11</td>
-                <td scope="col"><button class="btn btn-danger" onclick="">Delete</button></td>
-            </tr>
-
-            <tr>
-                <td scope="col">Cek Toko Sebelah</td>
-                <td scope="col">02/04/2024 01:33:11</td>
-                <td scope="col"><button class="btn btn-danger" onclick="">Delete</button></td>
-            </tr>
-            </tbody>
-        </table>
+        <table class="table" id="unduhan-table"></table>
     </div>
 </div>
+
+<script>
+    async function getUnduhan() {
+        return fetch("{% url 'daftarunduhan:get_all_users_unduhan' %}").then((res) => res.json())
+    }
+    
+    async function refresUnduhan() {
+        document.getElementById("unduhan-table").innerHTML = ""
+        const fetchedunduhan = await getUnduhan();
+        const unduhan = fetchedunduhan['unduhan']
+        let htmlString = ''
+
+        if(unduhan.length === 0){
+            htmlString = `<p align="center"> Anda belum mengunduh tayangan apapun </p>`
+        }
+        else{
+            htmlString = `<thead>
+                <tr>
+                    <th scope="col">Judul</th>
+                    <th scope="col">Waktu diunduh</th>
+                    <th scope="col">Aksi</th>
+                </tr>
+            </thead>`
+            unduhan.forEach((item) => {
+                htmlString += `\n<tr>
+                    <td>${item.judul}</td>
+                    <td>${item.timestamp.replaceAll("T", ", ")}</td>
+                    <td>
+                        <center>
+                            <form action="{% url 'daftarunduhan:delete_unduhan' %}" method="post">
+                                {% csrf_token %}
+                                <input type="hidden" name="id_tayangan" value="${item.id_tayangan}">
+                                <input type="hidden" name="timestamp" value="${item.timestamp}">
+                                <input type="hidden" name="username" value="${item.username}">
+                                <button type="submit" class="btn btn-danger">Delete</button>
+                            </form>
+                        </center>
+                    </td>
+                    </tr>`
+                })
+        }
+                
+        document.getElementById("unduhan-table").innerHTML = htmlString
+    }
+            
+    refresUnduhan()
+
+</script>
 
 {% endblock content %}

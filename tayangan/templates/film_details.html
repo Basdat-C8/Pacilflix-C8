@@ -6,15 +6,26 @@
 {% load calculate %}
 <div class="container mt-5">
     <h2 style="text-align: center;">Halaman Film</h2>
+    <br>
         <div class="row">
             <!-- Film Title and Actions -->
             <div class="col-12">
                 <div class="card mb-3">
                     <div class="card-body text">
                         <h3 class="card-title">Judul: <span id="filmTitle">{{ film.judul }}</span></h3>
-                        <a href="#" class="btn btn-primary">Tonton</a>
-                        <a href="#" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#downloadModal">Unduh Tayangan</a>
-                        <a href="#" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#favoriteModal">Tambahkan ke Favorit</a>
+                        
+                        <!-- Progress Bar -->
+                        <form method="POST" action="{% url 'tayangan:watch_episode' film.id %}">
+                            {% csrf_token %}
+                            <label for="progress">Progress:</label>
+                            <input type="range" id="progress" name="progress" min="0" max="100" value="0" oninput="updateProgressValue()">
+                            <span id="progressValue">0%</span>
+                            <br><br><br>
+                            <input type="submit" value="Tonton" class="btn btn-primary">
+                            <a href="#" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#downloadModal">Unduh Tayangan</a>
+                            <a href="#" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#favoriteModal">Tambahkan ke Favorit</a>
+                        </form>
+            
                     </div>
                 </div>
             </div>
@@ -154,4 +165,45 @@
         </div>
     </div>
 </div>
+
+<style>
+    input[type="range"] {
+        -webkit-appearance: none;
+        width: 100%;
+        height: 15px;
+        border-radius: 5px;
+        background: linear-gradient(90deg, rgba(62,126,255,1) 0%, rgba(62,126,255,1) var(--progress-percent), rgba(214,214,214,1) var(--progress-percent), rgba(214,214,214,1) 100%);
+        outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 25px;
+        height: 25px;
+        border-radius: 50%;
+        background: #3E7EFF;
+        cursor: pointer;
+    }
+
+    input[type="range"]::-moz-range-thumb {
+        width: 25px;
+        height: 25px;
+        border-radius: 50%;
+        background: #3E7EFF;
+        cursor: pointer;
+    }
+</style>
+
+<script>
+    function updateProgressValue() {
+        var progress = document.getElementById('progress');
+        var progressValue = document.getElementById('progressValue');
+        var value = progress.value;
+        progressValue.innerText = value + '%';
+        progress.style.setProperty('--progress-percent', value + '%');
+    }
+
+    window.onload = updateProgressValue;
+</script>
 {% endblock %}

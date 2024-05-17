@@ -6,6 +6,7 @@
 {% load calculate %}
 <div class="container mt-5">
     <h2 style="text-align: center;">Halaman Series</h2>
+    <br>
         <div class="row">
             <!-- Series Title and Actions -->
             <div class="col-12">
@@ -13,11 +14,10 @@
                     <div class="card-body text">
                         <h3 class="card-title">Judul: <span id="seriesTitle">{{ series.judul }}</span></h3>
 
-                        <!-- Episodes Links (Dynamically generated) -->
                         <p><strong>Episodes:</strong></p>
                         <ul>
                             {% for episode in episodes %}
-                                <li><a href="{{ episode.url_video }}"> Episode {{ forloop.counter }}</a></li>
+                                <li><a href="{% url 'tayangan:show_episode_details' id_series=episode.id_series sub_judul=episode.sub_judul %}"> Episode {{ episode.listing_order }}</a></li>
                             {% endfor %}
                         </ul>
 

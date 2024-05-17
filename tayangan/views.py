@@ -3,6 +3,7 @@ from django.conf import settings
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from psycopg2.extras import RealDictCursor
+from django.utils import timezone
 import logging
 
 from login_register.query import create_connection
@@ -306,7 +307,7 @@ def show_series_details(request, id_tayangan):
 
                 # Fetch episodes
                 cursor.execute("""
-                    SELECT e.*
+                    SELECT e.*, row_number() OVER (ORDER BY e.release_date ASC) as listing_order
                     FROM EPISODE e
                     WHERE e.id_series = %s;
                 """, (id_tayangan,))
@@ -333,9 +334,59 @@ def show_series_details(request, id_tayangan):
     else:
         return render(request, "series_details.html", {'use_navbar2': bool(request.session.get('username'))})
 
-def show_episode_details(request):
-    context = {'use_navbar2': True}
-    return render(request, "episode_details.html", context)
+def show_episode_details(request, id_series, sub_judul):
+    conn = create_connection()
+    if conn is not None:
+        try:
+            with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+                # Fetch all episodes for the series
+
+                cursor.execute("SELECT judul FROM TAYANGAN WHERE id = %s", (id_series,))
+                series_name = cursor.fetchone()['judul']
+
+                cursor.execute("""
+                    SELECT e.*, row_number() OVER (ORDER BY e.release_date ASC) as listing_order
+                    FROM EPISODE e
+                    WHERE e.id_series = %s
+                    ORDER BY e.release_date ASC;
+                """, (id_series,))
+                episodes = cursor.fetchall()
+
+                # Filter the correct episode
+                episode = next((ep for ep in episodes if ep['sub_judul'] == sub_judul), None)
+
+                # Remove the current episode from the episodes list
+                episodes = [ep for ep in episodes if ep['sub_judul'] != sub_judul]
+
+                context = {
+                    'series_name': series_name,
+                    'episodes': episodes,
+                    'episode': episode,
+                    'use_navbar2': bool(request.session.get('username')),
+                    'is_authenticated': bool(request.session.get('username')),
+                }
+                return render(request, "episode_details.html", context)
+        except Exception as e:
+            logger.error("Error in fetching episode details: %s", e)
+            return render(request, "episode_details.html", {'use_navbar2': bool(request.session.get('username'))})
+        finally:
+            conn.close()
+    else:
+        return render(request, "episode_details.html", {'use_navbar2': bool(request.session.get('username'))})
+
+def watch_episode(request, id_series):
+    connection = create_connection()
+    if request.method == 'POST':
+        progress = request.POST.get('progress')
+        username = request.session.get('username')
+        # Save the watching activity to the RIWAYAT_NONTON table
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                INSERT INTO RIWAYAT_NONTON (username, id_tayangan, progress, timestamp)
+                VALUES (%s, %s, %s, %s)
+            """, (username, id_series, progress, timezone.now()))
+        return redirect('episode_details', id_series=id_series)
+
 
 def show_daftar_kontributor(request):
     context = {'use_navbar2': True}

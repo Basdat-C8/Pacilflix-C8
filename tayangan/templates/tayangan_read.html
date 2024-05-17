@@ -39,6 +39,7 @@
 
 <div class="container my-5">
     <h1 style="text-align: center;">Daftar Tayangan</h1>
+    <br>
     <form id="searchForm" action="{% url 'tayangan:search_results' %}" method="GET">
         <input type="text" id="searchInput" class="form-control my-3" name="search" placeholder="Cari Tayangan berdasarkan judul..." value="{{ search_input }}">
         <button type="submit" class="btn btn-primary mb-3">Search</button>

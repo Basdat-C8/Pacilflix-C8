@@ -9,6 +9,6 @@ def to_range(value):
 @register.simple_tag
 def average_rating(reviews):
     if reviews:
-        return sum([review['rating'] for review in reviews]) / len(reviews)
+        return round(sum([review['rating'] for review in reviews]) / len(reviews), 2)
     else:
         return 0

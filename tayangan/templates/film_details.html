@@ -17,8 +17,6 @@
                 <div class="card mb-3">
                     <div class="card-body text">
                         <h3 class="card-title">Judul: <span id="filmTitle">{{ film.judul }}</span></h3>
-                        
-                        {% if is_released %}
                         <!-- Progress Bar -->
                         <form method="POST" action="{% url 'tayangan:watch_film' id_tayangan %}" id="watchForm">
                             {% csrf_token %}
@@ -29,12 +27,12 @@
                             <input type="hidden" id="startDateTime" name="startDateTime">
                             <input type="hidden" id="startPercent" name="startPercent">
                             <input type="hidden" id="endPercent" name="endPercent">
+                            {% if is_released %}
                             <button type="button" id="watchButton" class="btn btn-primary">Tonton</button>
-                            <a href="#" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#downloadModal">Unduh Tayangan</a>
-                            <a href="#" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#favoriteModal">Tambahkan ke Favorit</a>
-                        </form>
-                        {% endif %}
-            
+                            {% endif %}
+                        </form><br>
+                        <a href="#" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#downloadModal">Unduh Tayangan</a>
+                        <a href="#" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#favoriteModal">Tambahkan ke Favorit</a>
                     </div>
                 </div>
             </div>
@@ -171,7 +169,7 @@
             </div>
         </div>
     </div>
-</div>
+
 
 <style>
     input[type="range"] {

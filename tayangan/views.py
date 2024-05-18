@@ -8,6 +8,7 @@ from .query import top_10_global, top_10_local
 import logging
 from .query import *
 import json
+from pprint import pprint
 
 from login_register.query import create_connection
 
@@ -129,26 +130,32 @@ def show_film_details(request, id_tayangan):
                     WHERE f.id_tayangan = %s;
                 """, (id_tayangan,))
                 film = cursor.fetchone()
-                
+
                 # Compare the release date with the current date
                 is_released = film['release_date_film'] <= timezone.now().date()
 
                 # Calculate total view, asumsi seorang user bisa menonton lebih dari sekali
                 cursor.execute("""
-                    SELECT COUNT(*) AS total_views
+                    SELECT COALESCE(SUM(total_views), 0) AS total_views
                     FROM (
                         SELECT 
-                            id_tayangan,
-                            username,
-                            (EXTRACT(EPOCH FROM (end_date_time - start_date_time)) / 60) AS watch_duration
-                        FROM RIWAYAT_NONTON
-                        WHERE id_tayangan = %s
-                    ) watch_details
-                    INNER JOIN FILM f ON f.id_tayangan = watch_details.id_tayangan
-                    WHERE watch_details.watch_duration >= (f.durasi_film * 0.7)
-                    GROUP BY watch_details.id_tayangan;
+                            COUNT(*) AS total_views
+                        FROM (
+                            SELECT 
+                                id_tayangan,
+                                username,
+                                (EXTRACT(EPOCH FROM (end_date_time - start_date_time)) / 60) AS watch_duration
+                            FROM RIWAYAT_NONTON
+                            WHERE id_tayangan = 'b12e8d10-890f-49a6-9e42-7acb6116c1e9'
+                        ) watch_details
+                        INNER JOIN FILM f ON f.id_tayangan = watch_details.id_tayangan
+                        WHERE watch_details.watch_duration >= (f.durasi_film * 0.7)
+                        GROUP BY watch_details.id_tayangan
+                    ) AS subquery;
                 """, (id_tayangan,))
                 total_views = cursor.fetchone()['total_views']
+                if total_views is None:
+                    total_views = 0
 
                 # Fetch genres
                 cursor.execute("""
@@ -168,7 +175,6 @@ def show_film_details(request, id_tayangan):
                     WHERE mt.id_tayangan = %s;
                 """, (id_tayangan,))
                 actors = [row['nama'] for row in cursor.fetchall()]
-
                 # Fetch writers
                 cursor.execute("""
                     SELECT c.nama 
@@ -178,7 +184,6 @@ def show_film_details(request, id_tayangan):
                     WHERE mst.id_tayangan = %s;
                 """, (id_tayangan,))
                 writers = [row['nama'] for row in cursor.fetchall()]
-
                 # Fetch sutradara
                 cursor.execute("""
                     SELECT c.nama 
@@ -211,6 +216,7 @@ def show_film_details(request, id_tayangan):
                     'use_navbar2': bool(request.session.get('username')),
                     'is_authenticated': bool(request.session.get('username')),
                 }
+
                 return render(request, "film_details.html", context)
         except Exception as e:
             logger.error("Error in fetching film details: %s", e)
@@ -296,7 +302,7 @@ def show_series_details(request, id_tayangan):
 
                 # Calculate total view for series, asumsi seorang user bisa menonton lebih dari sekali dan satu view di episode counted as one view di series
                 cursor.execute("""
-                    SELECT COUNT(*) AS total_views
+                    SELECT COALESCE(COUNT(valid_views.id_tayangan), 0) AS total_views
                     FROM (
                         SELECT DISTINCT
                             rn.id_tayangan,
@@ -307,7 +313,8 @@ def show_series_details(request, id_tayangan):
                         JOIN EPISODE e ON e.id_series = rn.id_tayangan
                         WHERE rn.id_tayangan = %s
                         AND (EXTRACT(EPOCH FROM (rn.end_date_time - rn.start_date_time)) / 60) >= (e.durasi * 0.7)
-                    ) as valid_views;
+                    ) as valid_views
+                    RIGHT JOIN (SELECT 1) as dummy ON true;
                 """, (id_tayangan,))
                 total_views = cursor.fetchone()['total_views']
 

@@ -1,10 +1,14 @@
+from datetime import datetime,timedelta
 from django.shortcuts import redirect, render
-from django.conf import settings
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseBadRequest, HttpResponseRedirect, JsonResponse, HttpResponseNotFound
 from django.urls import reverse
-from psycopg2.extras import RealDictCursor
 from django.utils import timezone
+from psycopg2.extras import RealDictCursor
+from .query import top_10_global, top_10_local
 import logging
+from .query import *
+import json
+from pprint import pprint
 
 from login_register.query import create_connection
 
@@ -22,6 +26,14 @@ def show_tayangan(request):
                 """, (request.session.get('username'),))
                 has_active_package = cursor.fetchone() is not None
 
+                # Fetch top 10 tayangan global
+                cursor.execute(top_10_global)
+                top_10_tayangan_global = cursor.fetchall()
+
+                # Fetch top 10 tayangan local
+                cursor.execute(top_10_local)
+                top_10_tayangan_local = cursor.fetchall()
+
                 # Fetch films
                 cursor.execute("""
                     SELECT id_tayangan, judul, sinopsis_trailer, url_video_trailer, release_date_trailer
@@ -36,6 +48,8 @@ def show_tayangan(request):
                 series = cursor.fetchall()
 
                 context = {
+                    'top_10_tayangan_global': top_10_tayangan_global,
+                    'top_10_tayangan_local': top_10_tayangan_local,
                     'films': films,
                     'series': series,
                     'is_authenticated': bool(request.session.get('username')),
@@ -117,6 +131,32 @@ def show_film_details(request, id_tayangan):
                 """, (id_tayangan,))
                 film = cursor.fetchone()
 
+                # Compare the release date with the current date
+                is_released = film['release_date_film'] <= timezone.now().date()
+
+                # Calculate total view, asumsi seorang user bisa menonton lebih dari sekali
+                cursor.execute("""
+                    SELECT COALESCE(SUM(total_views), 0) AS total_views
+                    FROM (
+                        SELECT 
+                            COUNT(*) AS total_views
+                        FROM (
+                            SELECT 
+                                id_tayangan,
+                                username,
+                                (EXTRACT(EPOCH FROM (end_date_time - start_date_time)) / 60) AS watch_duration
+                            FROM RIWAYAT_NONTON
+                            WHERE id_tayangan = 'b12e8d10-890f-49a6-9e42-7acb6116c1e9'
+                        ) watch_details
+                        INNER JOIN FILM f ON f.id_tayangan = watch_details.id_tayangan
+                        WHERE watch_details.watch_duration >= (f.durasi_film * 0.7)
+                        GROUP BY watch_details.id_tayangan
+                    ) AS subquery;
+                """, (id_tayangan,))
+                total_views = cursor.fetchone()['total_views']
+                if total_views is None:
+                    total_views = 0
+
                 # Fetch genres
                 cursor.execute("""
                     SELECT gt.genre 
@@ -135,7 +175,6 @@ def show_film_details(request, id_tayangan):
                     WHERE mt.id_tayangan = %s;
                 """, (id_tayangan,))
                 actors = [row['nama'] for row in cursor.fetchall()]
-
                 # Fetch writers
                 cursor.execute("""
                     SELECT c.nama 
@@ -145,7 +184,6 @@ def show_film_details(request, id_tayangan):
                     WHERE mst.id_tayangan = %s;
                 """, (id_tayangan,))
                 writers = [row['nama'] for row in cursor.fetchall()]
-
                 # Fetch sutradara
                 cursor.execute("""
                     SELECT c.nama 
@@ -160,12 +198,15 @@ def show_film_details(request, id_tayangan):
                 cursor.execute("""
                     SELECT u.username, u.rating, u.timestamp, u.deskripsi
                     FROM ULASAN u
-                    WHERE u.id_tayangan = %s;
+                    WHERE u.id_tayangan = %s
+                    ORDER BY u.timestamp DESC;
                 """, (id_tayangan,))
                 reviews = cursor.fetchall()
 
                 context = {
+                    'is_released': is_released,
                     'id_tayangan': id_tayangan,
+                    'total_views': total_views,
                     'film': film,
                     'genres': genres,
                     'actors': actors,
@@ -175,6 +216,7 @@ def show_film_details(request, id_tayangan):
                     'use_navbar2': bool(request.session.get('username')),
                     'is_authenticated': bool(request.session.get('username')),
                 }
+
                 return render(request, "film_details.html", context)
         except Exception as e:
             logger.error("Error in fetching film details: %s", e)
@@ -258,6 +300,24 @@ def show_series_details(request, id_tayangan):
                 """, (id_tayangan,))
                 series = cursor.fetchone()
 
+                # Calculate total view for series, asumsi seorang user bisa menonton lebih dari sekali dan satu view di episode counted as one view di series
+                cursor.execute("""
+                    SELECT COALESCE(COUNT(valid_views.id_tayangan), 0) AS total_views
+                    FROM (
+                        SELECT DISTINCT
+                            rn.id_tayangan,
+                            rn.username,
+                            rn.start_date_time,
+                            rn.end_date_time
+                        FROM RIWAYAT_NONTON rn
+                        JOIN EPISODE e ON e.id_series = rn.id_tayangan
+                        WHERE rn.id_tayangan = %s
+                        AND (EXTRACT(EPOCH FROM (rn.end_date_time - rn.start_date_time)) / 60) >= (e.durasi * 0.7)
+                    ) as valid_views
+                    RIGHT JOIN (SELECT 1) as dummy ON true;
+                """, (id_tayangan,))
+                total_views = cursor.fetchone()['total_views']
+
                 # Fetch genres
                 cursor.execute("""
                     SELECT gt.genre 
@@ -301,7 +361,8 @@ def show_series_details(request, id_tayangan):
                 cursor.execute("""
                     SELECT u.username, u.rating, u.timestamp, u.deskripsi
                     FROM ULASAN u
-                    WHERE u.id_tayangan = %s;
+                    WHERE u.id_tayangan = %s
+                    ORDER BY u.timestamp DESC;
                 """, (id_tayangan,))
                 reviews = cursor.fetchall()
 
@@ -316,6 +377,7 @@ def show_series_details(request, id_tayangan):
                 context = {
                     'id_tayangan': id_tayangan,
                     'series': series,
+                    'total_views': total_views,
                     'genres': genres,
                     'actors': actors,
                     'writers': writers,
@@ -340,7 +402,6 @@ def show_episode_details(request, id_series, sub_judul):
         try:
             with conn.cursor(cursor_factory=RealDictCursor) as cursor:
                 # Fetch all episodes for the series
-
                 cursor.execute("SELECT judul FROM TAYANGAN WHERE id = %s", (id_series,))
                 series_name = cursor.fetchone()['judul']
 
@@ -355,10 +416,14 @@ def show_episode_details(request, id_series, sub_judul):
                 # Filter the correct episode
                 episode = next((ep for ep in episodes if ep['sub_judul'] == sub_judul), None)
 
+                # Compare the release date with the current date
+                is_released = episode['release_date'] <= timezone.now().date()
+
                 # Remove the current episode from the episodes list
                 episodes = [ep for ep in episodes if ep['sub_judul'] != sub_judul]
 
                 context = {
+                    'is_released': is_released,
                     'series_name': series_name,
                     'episodes': episodes,
                     'episode': episode,
@@ -374,20 +439,104 @@ def show_episode_details(request, id_series, sub_judul):
     else:
         return render(request, "episode_details.html", {'use_navbar2': bool(request.session.get('username'))})
 
-def watch_episode(request, id_series):
+def watch_film(request, id_tayangan):
     connection = create_connection()
     if request.method == 'POST':
-        progress = request.POST.get('progress')
         username = request.session.get('username')
+        start_percent = int(request.POST.get('startPercent'))
+        end_percent = int(request.POST.get('endPercent'))
+        if start_percent >= end_percent:
+            return HttpResponseBadRequest('Invalid slider values: start_percent must be less than end_percent.')
+        start_date_time = datetime.strptime(request.POST.get('startDateTime'), '%Y-%m-%d %H:%M:%S')
+
+        # Fetch the duration of the series
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT durasi_film FROM FILM WHERE id_tayangan = %s", (id_tayangan,))
+            durasi = cursor.fetchone()
+
+        durasi_tayangan = durasi[0]
+
+        # Convert durasi_tayangan to seconds
+        durasi_tayangan_seconds = durasi_tayangan * 60
+
+        # Compute the duration watched
+        duration_watched_seconds = ((end_percent - start_percent) / 100) * durasi_tayangan_seconds
+
+        # Compute end_date_time
+        end_date_time = (start_date_time + timedelta(seconds=duration_watched_seconds)).strftime('%Y-%m-%d %H:%M:%S')
+
         # Save the watching activity to the RIWAYAT_NONTON table
         with connection.cursor() as cursor:
             cursor.execute("""
-                INSERT INTO RIWAYAT_NONTON (username, id_tayangan, progress, timestamp)
+                INSERT INTO RIWAYAT_NONTON (username, id_tayangan, start_date_time, end_date_time)
                 VALUES (%s, %s, %s, %s)
-            """, (username, id_series, progress, timezone.now()))
-        return redirect('episode_details', id_series=id_series)
+            """, (username, id_tayangan, start_date_time, end_date_time))
+            connection.commit()
+
+        return JsonResponse({'status': 'success'})
+    else:
+        return redirect('tayangan:show_film_details', id=id_tayangan)
+    
+def watch_episode(request, id_series, sub_judul):
+    connection = create_connection()
+    if request.method == 'POST':
+        username = request.session.get('username')
+        start_percent = int(request.POST.get('startPercent'))
+        end_percent = int(request.POST.get('endPercent'))
+        if start_percent >= end_percent:
+            return HttpResponseBadRequest('Invalid slider values: start_percent must be less than end_percent.')
+        start_date_time = datetime.strptime(request.POST.get('startDateTime'), '%Y-%m-%d %H:%M:%S')
+
+        # Fetch the duration of the series
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT durasi FROM EPISODE WHERE id_series = %s AND sub_judul = %s", (id_series, sub_judul,))
+            durasi = cursor.fetchone()
+
+        durasi_tayangan = durasi[0]
+        print(durasi_tayangan)
+
+        # Convert durasi_tayangan to seconds
+        durasi_tayangan_seconds = durasi_tayangan * 60
+
+        # Compute the duration watched
+        duration_watched_seconds = ((end_percent - start_percent) / 100) * durasi_tayangan_seconds
+
+        # Compute end_date_time
+        end_date_time = (start_date_time + timedelta(seconds=duration_watched_seconds)).strftime('%Y-%m-%d %H:%M:%S')
+        print(start_date_time, end_date_time)
+
+        # Save the watching activity to the RIWAYAT_NONTON table
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                INSERT INTO RIWAYAT_NONTON (username, id_tayangan, start_date_time, end_date_time)
+                VALUES (%s, %s, %s, %s)
+            """, (username, id_series, start_date_time, end_date_time))
+            connection.commit()
+
+        return JsonResponse({'status': 'success'})
+    else:
+        return redirect('tayangan:show_episode_details', id=id_series, sub_judul=sub_judul)
 
 
 def show_daftar_kontributor(request):
     context = {'use_navbar2': True}
     return render(request, "daftar_kontributor_read.html", context)
+
+def add_tayangan_to_daftar_favorit(request):
+    username = ''
+
+    try:
+        username = request.session.get('username')
+        print('user : ',username)
+    except:
+        return HttpResponseRedirect(reverse("authentication:login_user"))
+    
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        id_tayangan = data.get('id_tayangan')
+        timestamp = data.get('timestamp')
+
+        query_add_to_daftar_favorit(username, timestamp, id_tayangan)
+        return HttpResponseRedirect(reverse("daftarfavorit:show_daftar_favorit_tayangan", args=[timestamp]))
+
+    return HttpResponseNotFound()

@@ -12,13 +12,18 @@
             <h5>Sub Judul: <span id="episodeSubTitle">{{ episode.sub_judul }}</span></h5>
 
             <br>
-            <form method="POST" action="{% url 'tayangan:watch_episode' episode.id_series %}">
+            <form method="POST" action="{% url 'tayangan:watch_episode' id_series=episode.id_series sub_judul=episode.sub_judul %}" id="watchForm">
                 {% csrf_token %}
                 <label for="progress">Progress:</label>
                 <input type="range" id="progress" name="progress" min="0" max="100" value="0" oninput="updateProgressValue()">
                 <span id="progressValue">0%</span>
                 <br><br><br>
-                <input type="submit" value="Tonton" class="btn btn-primary">
+                <input type="hidden" id="startDateTime" name="startDateTime">
+                <input type="hidden" id="startPercent" name="startPercent">
+                <input type="hidden" id="endPercent" name="endPercent">
+                {% if is_released %}
+                    <button type="button" id="watchButton" class="btn btn-primary">Tonton</button>
+                {% endif %}
             </form>
             <br>
             <h4>Episode Lainnya:</h4>
@@ -66,6 +71,10 @@
 </style>
 
 <script>
+    let watching = false;
+    let startSliderPosition = 0;
+    let startTime = null;
+
     function updateProgressValue() {
         var progress = document.getElementById('progress');
         var progressValue = document.getElementById('progressValue');
@@ -73,6 +82,62 @@
         progressValue.innerText = value + '%';
         progress.style.setProperty('--progress-percent', value + '%');
     }
+
+    document.getElementById('watchButton').addEventListener('click', function() {
+    const slider = document.getElementById('progress');
+    const watchForm = document.getElementById('watchForm');
+    startSliderPosition = 0;
+    endSliderPosition = 0;
+
+    if (!watching) {
+        // Start watching
+        this.innerText = 'Berhenti Menonton';
+        startSliderPosition = slider.value;
+
+        let date = new Date();
+        let formattedString = date.toISOString().slice(0, 19).replace('T', ' ');
+
+        document.getElementById('startDateTime').value = formattedString;  // Store start time
+
+        document.getElementById('startPercent').value = startSliderPosition;  // Store start slider position
+
+        watching = !watching;
+    } else {
+        // Stop watching
+        this.innerText = 'Tonton';
+        endSliderPosition = slider.value;
+        document.getElementById('endPercent').value = endSliderPosition;  // Store end slider position
+        console.log(document.getElementById('startPercent').value)
+
+        // Add start, end, and id_tayangan to the form data
+        const formData = new FormData(watchForm);
+        formData.set('endPercent', endSliderPosition);
+
+        console.log('Form action:', watchForm.action);  // Log the form action
+        console.log('Form data:', Array.from(formData.entries()));  // Log the form data
+
+        // Submit the form asynchronously
+        fetch(watchForm.action, {
+            method: 'POST',
+            body: formData
+        }).then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        }).then(data => {
+            console.log(data);
+        }).catch(error => {
+            console.error('There has been a problem with your fetch operation:', error);
+        });
+
+        // Reset
+        startTime = null;
+        watching = !watching;
+        startSliderPosition = 0;
+        endSliderPosition = 0;
+    }
+});
 
     window.onload = updateProgressValue;
 </script>

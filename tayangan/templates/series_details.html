@@ -21,7 +21,6 @@
                             {% endfor %}
                         </ul>
 
-                        <a href="#" class="btn btn-primary">Tonton</a>
                         <a href="#" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#downloadModal">Unduh Tayangan</a>
                         <a href="#" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#favoriteModal">Tambahkan ke Favorit</a>
                     </div>
@@ -34,7 +33,7 @@
             <div class="col-md-6">
                 <div class="card mb-3 flex-fill h-100">
                     <div class="card-body">
-                        <p><strong>Total View:</strong> <span id="totalViews">{{ series.total_views }}</span></p>
+                        <p><strong>Total View:</strong> <span id="totalViews">{{ total_views }} views</span></p>
                         <p><strong>Rating Rata-Rata:</strong> <span id="averageRating">{% average_rating reviews %} &#9733;</span></p>
                         <p><strong>Sinopsis:</strong> <span id="synopsis">{{ series.sinopsis }}</span></p>
                     </div>

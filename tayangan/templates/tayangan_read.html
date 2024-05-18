@@ -35,6 +35,9 @@
         text-align: left;
         color: black;
     }
+    .rank-col {
+        width: 50px !important;
+    }
 </style>
 
 <div class="container my-5">
@@ -58,7 +61,7 @@
             <table class="table table-hover">
                 <thead>
                     <tr>
-                        <th scope="col">Rank</th>
+                        <th scope="col" class="rank-col">Rank</th>
                         <th scope="col">Judul</th>
                         <th scope="col">Sinopsis Trailer</th>
                         <th scope="col">Trailer URL</th>
@@ -70,17 +73,25 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for i in range %}
+                    {% for tayangan in top_10_tayangan_global %}
                     <tr>
-                        <th scope="row">{{ forloop.counter }}</th>
-                        <td>Example Movie {{ forloop.counter }}</td>
-                        <td>A story about Movie {{ forloop.counter }}...</td>
-                        <td><a href="http://example.com">Watch Trailer</a></td>
-                        <td>2024-01-0{{ forloop.counter }}</td>
-                        <td>150{{ forloop.counter }}</td>
+                        <th scope="row" class="rank-col">{{ tayangan.rank }}</th>
+                        <td>{{ tayangan.judul }}</td>
+                        <td>{{ tayangan.sinopsis_trailer }}</td>
+                        <td><a href="{{ tayangan.trailer_url }}">Watch Trailer</a></td>
+                        <td>{{ tayangan.tanggal_rilis_trailer }}</td>
+                        <td>{{ tayangan.total_view_7_hari_terakhir }}</td>
+                        {% if is_authenticated and has_active_package %}
+                        <td>
+                        {% if tayangan.type == 'FILM' %}
+                        <a href="{% url 'tayangan:show_film_details' id_tayangan=tayangan.id %}" class="btn btn-info">Show Tayangan</a>
+                        {% elif tayangan.type == 'SERIES' %}
+                        <a href="{% url 'tayangan:show_series_details' id_tayangan=tayangan.id %}" class="btn btn-info">Show Tayangan</a>
+                        {% endif %}
+                        </td>
+                        {% endif %}
                     </tr>
                     {% endfor %}
-                    <!-- Data lain -->
                 </tbody>
             </table>
         </div>
@@ -88,7 +99,7 @@
             <table class="table table-hover">
                 <thead>
                     <tr>
-                        <th scope="col">Rank</th>
+                        <th scope="col" class="rank-col">Rank</th>
                         <th scope="col">Judul</th>
                         <th scope="col">Sinopsis Trailer</th>
                         <th scope="col">Trailer URL</th>
@@ -100,17 +111,25 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for i in range %}
+                    {% for t in top_10_tayangan_local %}
                     <tr>
-                        <th scope="row">{{ forloop.counter }}</th>
-                        <td>Example Movie {{ forloop.counter }}</td>
-                        <td>A story about Movie {{ forloop.counter }}...</td>
-                        <td><a href="http://example.com">Watch Trailer</a></td>
-                        <td>2024-01-0{{ forloop.counter }}</td>
-                        <td>150{{ forloop.counter }}</td>
+                        <th scope="row" class="rank-col">{{ t.rank }}</th>
+                        <td>{{ t.judul }}</td>
+                        <td>{{ t.sinopsis_trailer }}</td>
+                        <td><a href="{{ t.trailer_url }}">Watch Trailer</a></td>
+                        <td>{{ t.tanggal_rilis_trailer }}</td>
+                        <td>{{ t.total_view_7_hari_terakhir }}</td>
+                        {% if is_authenticated and has_active_package %}
+                        <td>
+                        {% if t.type == 'FILM' %}
+                        <a href="{% url 'tayangan:show_film_details' id_tayangan=t.id %}" class="btn btn-info">Show Tayangan</a>
+                        {% elif t.type == 'SERIES' %}
+                        <a href="{% url 'tayangan:show_series_details' id_tayangan=t.id %}" class="btn btn-info">Show Tayangan</a>
+                        {% endif %}
+                        </td>
+                        {% endif %}
                     </tr>
                     {% endfor %}
-                    <!-- Data lain -->
                 </tbody>
             </table>
         </div>
@@ -178,30 +197,4 @@
         </table>
     </div>
 </div>
-
-<script>
-    var isAuthenticated = '{{ is_authenticated }}' == 'True'? true : '';
-
-    function addDetailButtonsToTables(tableId, url) {
-        const tables = document.querySelectorAll(tableId);
-        tables.forEach(table => {
-            table.querySelectorAll('tbody tr').forEach(row => {
-                const cell = document.createElement('td');
-                const link = document.createElement('a');
-                link.textContent = 'Show Tayangan';
-                link.className = 'btn btn-info';
-                link.href = '/tayangan' + url;
-                cell.appendChild(link);
-                row.appendChild(cell);
-            });
-        });
-    }
-
-    if (isAuthenticated) {
-        document.addEventListener('DOMContentLoaded', function() {
-            addDetailButtonsToTables('#globalTop10', '/film_details');
-            addDetailButtonsToTables('#countryTop10', '/film_details');
-        });
-    }
-</script>
 {% endblock %}

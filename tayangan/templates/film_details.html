@@ -14,17 +14,22 @@
                     <div class="card-body text">
                         <h3 class="card-title">Judul: <span id="filmTitle">{{ film.judul }}</span></h3>
                         
+                        {% if is_released %}
                         <!-- Progress Bar -->
-                        <form method="POST" action="{% url 'tayangan:watch_episode' film.id %}">
+                        <form method="POST" action="{% url 'tayangan:watch_film' id_tayangan %}" id="watchForm">
                             {% csrf_token %}
                             <label for="progress">Progress:</label>
                             <input type="range" id="progress" name="progress" min="0" max="100" value="0" oninput="updateProgressValue()">
                             <span id="progressValue">0%</span>
                             <br><br><br>
-                            <input type="submit" value="Tonton" class="btn btn-primary">
+                            <input type="hidden" id="startDateTime" name="startDateTime">
+                            <input type="hidden" id="startPercent" name="startPercent">
+                            <input type="hidden" id="endPercent" name="endPercent">
+                            <button type="button" id="watchButton" class="btn btn-primary">Tonton</button>
                             <a href="#" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#downloadModal">Unduh Tayangan</a>
                             <a href="#" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#favoriteModal">Tambahkan ke Favorit</a>
                         </form>
+                        {% endif %}
             
                     </div>
                 </div>
@@ -36,7 +41,7 @@
             <div class="col-md-6">
                 <div class="card mb-3 flex-fill h-100">
                     <div class="card-body">
-                        <p><strong>Total View:</strong> <span id="totalViews">{{ film.total_views }}</span></p>
+                        <p><strong>Total View:</strong> <span id="totalViews">{{ total_views }} views</span></p>
                         <p><strong>Rating Rata-Rata:</strong> <span id="averageRating">{% average_rating reviews %} &#9733;</span></p>
                         <p><strong>Sinopsis:</strong> <span id="synopsis">{{ film.sinopsis }}</span></p>
                         <p><strong>Durasi Film:</strong> <span id="duration">{{ film.durasi_film }} minutes</span></p>
@@ -196,6 +201,10 @@
 </style>
 
 <script>
+    let watching = false;
+    let startSliderPosition = 0;
+    let startTime = null;
+
     function updateProgressValue() {
         var progress = document.getElementById('progress');
         var progressValue = document.getElementById('progressValue');
@@ -203,6 +212,63 @@
         progressValue.innerText = value + '%';
         progress.style.setProperty('--progress-percent', value + '%');
     }
+
+
+    document.getElementById('watchButton').addEventListener('click', function() {
+    const slider = document.getElementById('progress');
+    const watchForm = document.getElementById('watchForm');
+    startSliderPosition = 0;
+    endSliderPosition = 0;
+
+    if (!watching) {
+        // Start watching
+        this.innerText = 'Berhenti Menonton';
+        startSliderPosition = slider.value;
+
+        let date = new Date();
+        let formattedString = date.toISOString().slice(0, 19).replace('T', ' ');
+
+        document.getElementById('startDateTime').value = formattedString;  // Store start time
+
+        document.getElementById('startPercent').value = startSliderPosition;  // Store start slider position
+
+        watching = !watching;
+    } else {
+        // Stop watching
+        this.innerText = 'Tonton';
+        endSliderPosition = slider.value;
+        document.getElementById('endPercent').value = endSliderPosition;  // Store end slider position
+        console.log(document.getElementById('startPercent').value)
+
+        // Add start, end, and id_tayangan to the form data
+        const formData = new FormData(watchForm);
+        formData.set('endPercent', endSliderPosition);
+
+        console.log('Form action:', watchForm.action);  // Log the form action
+        console.log('Form data:', Array.from(formData.entries()));  // Log the form data
+
+        // Submit the form asynchronously
+        fetch(watchForm.action, {
+            method: 'POST',
+            body: formData
+        }).then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        }).then(data => {
+            console.log(data);
+        }).catch(error => {
+            console.error('There has been a problem with your fetch operation:', error);
+        });
+
+        // Reset
+        startTime = null;
+        watching = !watching;
+        startSliderPosition = 0;
+        endSliderPosition = 0;
+    }
+});
 
     window.onload = updateProgressValue;
 </script>

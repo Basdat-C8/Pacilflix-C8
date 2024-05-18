@@ -1,11 +1,13 @@
 from datetime import datetime,timedelta
 from django.shortcuts import redirect, render
-from django.http import HttpResponseBadRequest, HttpResponseRedirect, JsonResponse
+from django.http import HttpResponseBadRequest, HttpResponseRedirect, JsonResponse, HttpResponseNotFound
 from django.urls import reverse
 from django.utils import timezone
 from psycopg2.extras import RealDictCursor
 from .query import top_10_global, top_10_local
 import logging
+from .query import *
+import json
 
 from login_register.query import create_connection
 
@@ -512,3 +514,22 @@ def watch_episode(request, id_series, sub_judul):
 def show_daftar_kontributor(request):
     context = {'use_navbar2': True}
     return render(request, "daftar_kontributor_read.html", context)
+
+def add_tayangan_to_daftar_favorit(request):
+    username = ''
+
+    try:
+        username = request.session.get('username')
+        print('user : ',username)
+    except:
+        return HttpResponseRedirect(reverse("authentication:login_user"))
+    
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        id_tayangan = data.get('id_tayangan')
+        timestamp = data.get('timestamp')
+
+        query_add_to_daftar_favorit(username, timestamp, id_tayangan)
+        return HttpResponseRedirect(reverse("daftarfavorit:show_daftar_favorit_tayangan", args=[timestamp]))
+
+    return HttpResponseNotFound()

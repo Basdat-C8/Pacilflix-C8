@@ -17,6 +17,7 @@
 
             <br>
             <form method="POST" action="{% url 'tayangan:watch_episode' id_series=episode.id_series sub_judul=episode.sub_judul %}" id="watchForm">
+                {% if is_released %}
                 {% csrf_token %}
                 <label for="progress">Progress:</label>
                 <input type="range" id="progress" name="progress" min="0" max="100" value="0" oninput="updateProgressValue()">
@@ -25,8 +26,7 @@
                 <input type="hidden" id="startDateTime" name="startDateTime">
                 <input type="hidden" id="startPercent" name="startPercent">
                 <input type="hidden" id="endPercent" name="endPercent">
-                {% if is_released %}
-                    <button type="button" id="watchButton" class="btn btn-primary">Tonton</button>
+                <button type="button" id="watchButton" class="btn btn-primary">Tonton</button>
                 {% endif %}
             </form>
             <br>

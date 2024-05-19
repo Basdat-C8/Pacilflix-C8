@@ -210,13 +210,13 @@
     let startSliderPosition = 0;
     let startTime = null;
 
-    function updateProgressValue() {
+    if(document.getElementById('progress')){function updateProgressValue() {
         var progress = document.getElementById('progress');
         var progressValue = document.getElementById('progressValue');
         var value = progress.value;
         progressValue.innerText = value + '%';
         progress.style.setProperty('--progress-percent', value + '%');
-    }
+    }}
 
     window.onload = updateProgressValue;
 
@@ -247,7 +247,7 @@
             
     refreshDaftarFavorit()
 
-    async function addToDaftarFavorit(){
+    function addToDaftarFavorit(){
         var selectElement = document.getElementById("select-daftar-favorit");
         var selectedValue = selectElement.value;
 
@@ -257,7 +257,7 @@
                 timestamp: selectedValue
             };
 
-        const response = await fetch(url, {
+        const response = fetch(url, {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json',
@@ -270,7 +270,7 @@
         
     }
 
-    document.getElementById('watchButton').addEventListener('click', function() {
+    if(document.getElementById('watchButton')){document.getElementById('watchButton').addEventListener('click', function() {
     const slider = document.getElementById('progress');
     const watchForm = document.getElementById('watchForm');
     startSliderPosition = 0;
@@ -324,6 +324,6 @@
         startSliderPosition = 0;
         endSliderPosition = 0;
     }
-});
+})};
 </script>
 {% endblock %}

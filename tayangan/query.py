@@ -133,3 +133,13 @@ def query_add_to_daftar_favorit(username, timestamp, id_tayangan):
 
     cursor.execute(f"INSERT INTO TAYANGAN_MEMILIKI_DAFTAR_FAVORIT VALUES ('{id_tayangan}','{timestamp}','{username}');")
     connection.commit()
+
+def query_add_to_daftar_unduhan(username, id_tayangan):
+    connection = create_connection()
+    cursor = connection.cursor()
+
+    cursor.execute(rf"""
+                   set timezone to 'Asia/Jakarta';
+                   INSERT INTO TAYANGAN_TERUNDUH VALUES ('{id_tayangan}','{username}', date_trunc('second', CURRENT_TIMESTAMP));
+                   """)
+    connection.commit()

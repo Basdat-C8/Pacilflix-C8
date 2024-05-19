@@ -1,6 +1,6 @@
 from datetime import datetime,timedelta
 from django.shortcuts import redirect, render
-from django.http import HttpResponseBadRequest, HttpResponseRedirect, JsonResponse, HttpResponseNotFound
+from django.http import HttpResponseBadRequest, HttpResponseRedirect, JsonResponse, HttpResponseNotFound, HttpResponse
 from django.urls import reverse
 from django.utils import timezone
 from psycopg2.extras import RealDictCursor
@@ -542,7 +542,7 @@ def add_tayangan_to_daftar_favorit(request):
         username = request.session.get('username')
         print('user : ',username)
     except:
-        return HttpResponseRedirect(reverse("authentication:login_user"))
+        return HttpResponseRedirect(reverse("login_register:login"))
     
     if request.method == 'POST':
         data = json.loads(request.body)
@@ -551,5 +551,23 @@ def add_tayangan_to_daftar_favorit(request):
 
         query_add_to_daftar_favorit(username, timestamp, id_tayangan)
         return HttpResponseRedirect(reverse("daftarfavorit:show_daftar_favorit_tayangan", args=[timestamp]))
+
+    return HttpResponseNotFound()
+
+def add_tayangan_to_daftar_unduhan(request):
+    username = ''
+
+    try:
+        username = request.session.get('username')
+        print('user : ',username)
+    except:
+        return HttpResponseRedirect(reverse("login_register:login"))
+    
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        id_tayangan = data.get('id_tayangan')
+
+        query_add_to_daftar_unduhan(username, id_tayangan)
+        return HttpResponse(b"OK", status=200)
 
     return HttpResponseNotFound()

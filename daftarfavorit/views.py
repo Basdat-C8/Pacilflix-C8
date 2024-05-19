@@ -13,7 +13,7 @@ def show_daftar_favorit(request):
         username = request.session.get('username')
         print('user : ',username)
     except:
-        return HttpResponseRedirect(reverse("authentication:login_user"))
+        return HttpResponseRedirect(reverse("login_register:login"))
     
     context = {'use_navbar2': True, 'username':request.session.get('username')}
     return render(request, 'daftarfavorit_read_delete.html', context)
@@ -24,7 +24,7 @@ def show_daftar_favorit_tayangan(request, timestamp):
         username = request.session.get('username')
         print('user : ',username)
     except:
-        return HttpResponseRedirect(reverse("authentication:login_user"))
+        return HttpResponseRedirect(reverse("login_register:login"))
     
     daftar_favorit = query_get_specific_daftar_favorit(timestamp, username)
     judul_daftar_favorit = daftar_favorit[2]
@@ -45,7 +45,7 @@ def get_all_users_daftar_favorit(request):
         username = request.session.get('username')
         print('user : ',username)
     except:
-        return HttpResponseRedirect(reverse("authentication:login_user"))
+        return HttpResponseRedirect(reverse("login_register:login"))
     
     get_daftar_favorit = query_get_all_users_daftar_favorit(username)
 
@@ -65,7 +65,7 @@ def get_tayangan_daftar_favorit(request, timestamp):
         username = request.session.get('username')
         print('user : ',username)
     except:
-        return HttpResponseRedirect(reverse("authentication:login_user"))
+        return HttpResponseRedirect(reverse("login_register:login"))
     
     get_tayangan = query_get_tayangan_daftar_favorit(timestamp, username)
 

@@ -51,7 +51,7 @@
         let htmlString = ''
 
         if(unduhan.length === 0){
-            htmlString = `<p align="center"> Anda belum mengunduh tayangan apapun </p>`
+            htmlString = `<p align="center"> Anda belum mengunduh tayangan apapun selama 7 hari terakhir</p>`
         }
         else{
             htmlString = `<thead>
@@ -61,6 +61,7 @@
                     <th scope="col">Aksi</th>
                 </tr>
             </thead>`
+
             unduhan.forEach((item) => {
                 htmlString += `\n<tr>
                     <td>${item.judul}</td>
@@ -71,7 +72,7 @@
                         </center>
                     </td>
                     </tr>`
-                })
+            })
         }
                 
         document.getElementById("unduhan-table").innerHTML = htmlString

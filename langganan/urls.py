@@ -8,4 +8,5 @@ urlpatterns = [
     path('premium', beli_premium, name='beli_premium'),
     path('standard', beli_standard, name='beli_standard'),
     path('basic', beli_basic, name='beli_basic'),
+    path('get-transaction', get_user_transaksi, name='get_user_transaksi'),
 ]

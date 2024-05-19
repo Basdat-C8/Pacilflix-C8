@@ -9,6 +9,8 @@
     }
 </style>
 
+<meta name="csrf-token" id="csrf-token" content="{{ csrf_token }}">
+
 <div class="container my-5">
     <h1 style="text-align: center;">Daftar Unduhan</h1>
     <div class="tab-pane fade show active">
@@ -16,7 +18,28 @@
     </div>
 </div>
 
+<!-- Modal for add to daftar unduhan -->
+<div class="modal fade" id="error-modal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" style="text-align: center;">
+                <div style="width: 100%; text-align: center;">
+                    <h1 class="modal-title fs-5">GAGAL MENGHAPUS TAYANGAN <br> DARI DAFTAR UNDUHAN</h1>
+                </div>
+            </div>
+            <div class="modal-body" id="error-message">Tayangan minimal harus berada di daftar unduhan selama 1 hari agar bisa dihapus.</div>
+            <div class="modal-footer">
+                <div style="width: 100%; text-align: center;">
+                    <a type="button" class="btn btn-info" data-bs-dismiss="modal">Ok</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
+    var csrf_token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
     async function getUnduhan() {
         return fetch("{% url 'daftarunduhan:get_all_users_unduhan' %}").then((res) => res.json())
     }
@@ -44,13 +67,7 @@
                     <td>${item.timestamp.replaceAll("T", ", ")}</td>
                     <td>
                         <center>
-                            <form action="{% url 'daftarunduhan:delete_unduhan' %}" method="post">
-                                {% csrf_token %}
-                                <input type="hidden" name="id_tayangan" value="${item.id_tayangan}">
-                                <input type="hidden" name="timestamp" value="${item.timestamp}">
-                                <input type="hidden" name="username" value="${item.username}">
-                                <button type="submit" class="btn btn-danger">Delete</button>
-                            </form>
+                            <button type="submit" class="btn btn-danger" onclick="deleteUnduhan('${item.id_tayangan}', '${item.timestamp}', '${item.username}')">Delete</button>    
                         </center>
                     </td>
                     </tr>`
@@ -61,6 +78,32 @@
     }
             
     refresUnduhan()
+
+    async function deleteUnduhan(id_tayangan, timestamp, username){
+        var url = "{% url 'daftarunduhan:delete_unduhan' %}"
+
+        var data = {
+                id_tayangan: id_tayangan,
+                timestamp: timestamp,
+                username: username
+            };
+
+        const response = await fetch(url, {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrf_token
+            },
+            body: JSON.stringify(data)
+        }).then((res) => res.json());
+
+        if(response['message'] == 'success'){
+            refresUnduhan()
+        }
+        else{
+            $('#error-modal').modal('show');
+        }
+    }
 
 </script>
 

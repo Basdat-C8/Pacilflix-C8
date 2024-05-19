@@ -4,6 +4,7 @@ from django.http import JsonResponse
 from django.urls import reverse
 from .query import *
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound
+import json
 
 def show_daftar_unduhan(request):
     username = ''
@@ -42,10 +43,17 @@ def get_all_users_unduhan(request):
 
 def delete_unduhan(request):
     if request.method == 'POST':
-        id_tayangan = request.POST.get('id_tayangan')
-        timestamp = request.POST.get('timestamp')
-        username = request.POST.get('username')
-        query_delete_unduhan(id_tayangan, timestamp, username)
-        return HttpResponseRedirect(reverse("daftarunduhan:show_daftar_unduhan"))
+        # id_tayangan = request.POST.get('id_tayangan')
+        # timestamp = request.POST.get('timestamp')
+        # username = request.POST.get('username')
+
+        data = json.loads(request.body)
+        id_tayangan = data.get('id_tayangan')
+        timestamp = data.get('timestamp')
+        username = data.get('username')
+        
+        operation = query_delete_unduhan(id_tayangan, timestamp, username)
+
+        return JsonResponse({'message':operation})
 
     return HttpResponseNotFound()

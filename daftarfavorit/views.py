@@ -4,6 +4,7 @@ from django.http import JsonResponse
 from django.urls import reverse
 from .query import *
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound
+import json
 
 # ========================================= show
 
@@ -84,19 +85,21 @@ def get_tayangan_daftar_favorit(request, timestamp):
 
 def delete_daftar_favorit(request):
     if request.method == 'POST':
-        timestamp = request.POST.get('timestamp')
-        username = request.POST.get('username')
+        data = json.loads(request.body)
+        timestamp = data.get('timestamp')
+        username = data.get('username')
         query_delete_daftar_favorit(timestamp, username)
-        return HttpResponseRedirect(reverse("daftarfavorit:show_daftar_favorit"))
+        return JsonResponse({'message':'success'})
 
     return HttpResponseNotFound()
 
 def delete_tayangan(request):
     if request.method == 'POST':
-        id_tayangan = request.POST.get('id_tayangan')
-        timestamp = request.POST.get('timestamp')
-        username = request.POST.get('username')
+        data = json.loads(request.body)
+        id_tayangan = data.get('id_tayangan')
+        timestamp = data.get('timestamp')
+        username = data.get('username')
         query_delete_tayangan(id_tayangan, timestamp, username)
-        return HttpResponseRedirect(reverse("daftarfavorit:show_daftar_favorit_tayangan", args=[timestamp]))
+        return JsonResponse({'message':'success'})
 
     return HttpResponseNotFound()

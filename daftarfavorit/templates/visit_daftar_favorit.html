@@ -10,6 +10,7 @@
 </style>
 
 <p style="display:none" id="timestamp-daftar-favorit">{{ timestamp_daftar_favorit }}</p>
+<meta name="csrf-token" id="csrf-token" content="{{ csrf_token }}">
 
 <div class="container my-5">
     <h1 style="text-align: center;">{{ judul_daftar_favorit }}</h1>
@@ -20,6 +21,7 @@
 
 <script>
     var timestamp_daftar_favorit = document.getElementById("timestamp-daftar-favorit").textContent
+    var csrf_token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
     async function getTayangan() {
         const url = `{% url 'daftarfavorit:get_tayangan_daftar_favorit' '123' %}`.replace('123', timestamp_daftar_favorit)
@@ -33,7 +35,7 @@
         let htmlString = ''
 
         if(daftarTayangan.length === 0){
-            htmlString = `<p align="center"> Anda belum menambahakan tayangan apapun </p>`
+            htmlString = `<p align="center"> Anda belum menambahkan tayangan apapun </p>`
         }
         else{
             htmlString = `<thead>
@@ -47,13 +49,7 @@
                         <td>${item.judul}</td>
                         <td>
                             <center>
-                                <form action="{% url 'daftarfavorit:delete_tayangan' %}" method="post">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="id_tayangan" value="${item.id_tayangan}">
-                                    <input type="hidden" name="timestamp" value="${item.timestamp}">
-                                    <input type="hidden" name="username" value="${item.username}">
-                                    <button type="submit" class="btn btn-danger">Delete</button>
-                                </form>
+                                <button type="submit" class="btn btn-danger" onclick="deleteTayangan('${item.id_tayangan}', '${item.timestamp}', '${item.username}')">Delete</button>    
                             </center>
                         </td>
                     </tr>`
@@ -64,6 +60,29 @@
     }
             
     refreshTayangan()
+
+    async function deleteTayangan(id_tayangan, timestamp, username){
+        var url = "{% url 'daftarfavorit:delete_tayangan' %}"
+
+        var data = {
+                id_tayangan: id_tayangan,
+                timestamp: timestamp,
+                username: username
+            };
+
+        const response = await fetch(url, {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrf_token
+            },
+            body: JSON.stringify(data)
+        }).then((res) => res.json());
+
+        if(response['message'] == 'success'){
+            refreshTayangan()
+        }
+    }
 
 </script>
 

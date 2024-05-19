@@ -5,6 +5,7 @@
 {% block content %}
 {% load calculate %}
 <p style="display:none" id="id-tayangan">{{ id_tayangan }}</p>
+<p style="display:none" id="judul-tayangan">{{ film.judul }}</p>
 <meta name="csrf-token" id="csrf-token" content="{{ csrf_token }}">
 
 <div class="container mt-5">
@@ -24,7 +25,7 @@
                             {% endfor %}
                         </ul>
 
-                        <a href="#" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#downloadModal">Unduh Tayangan</a>
+                        <a href="#" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#downloadModal" onclick="refreshUnduhanModal()">Unduh Tayangan</a>
                         <a href="#" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#favoriteModal">Tambahkan ke Favorit</a>
                     </div>
                 </div>
@@ -154,9 +155,7 @@
                     <h1 class="modal-title fs-5">Sukses menambahkan tayangan ke daftar unduhan</h1>
                     <button type="button" class="btn-close ml-50" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-                    <p>Selamat! Anda telah berhasil mengunduh [Judul Tayangan] dan akan berlaku hingga [current time + 7 hari]. Cek informasi selengkapnya pada halaman daftar unduhan.</p>
-                </div>
+                <div class="modal-body" id="unduhan-message"></div>
                 <div class="modal-footer">
                     <div style="width: 100%; text-align: center;">
                         <a type="button" class="btn btn-info" href="/daftarunduhan" id="keDaftarUnduhanButton">Ke Daftar Unduhan</a>
@@ -165,11 +164,13 @@
             </div>
         </div>
     </div>
+
 </div>
 
 <script>
 
     var id_tayangan = document.getElementById("id-tayangan").textContent
+    var judul_tayangan = document.getElementById("judul-tayangan").textContent
     var csrf_token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
     async function getDaftarFavorit() {
@@ -218,5 +219,37 @@
         window.location.href = `{% url 'daftarfavorit:show_daftar_favorit_tayangan' '123' %}`.replace('123', selectedValue);
         
     }
+
+    // ============================================= download
+
+    function refreshUnduhanModal(){
+        var date = new Date();
+        date.setDate(date.getDate() + 7);
+        
+        console.log(date);
+
+        document.getElementById("unduhan-message").innerHTML = `Selamat! Anda telah berhasil mengunduh ${judul_tayangan} dan akan berlaku hingga ${date}. Cek informasi selengkapnya pada halaman daftar unduhan.</p>`
+        
+        addToDaftarUnduhan()
+    }
+    
+    function addToDaftarUnduhan(){
+
+        var url = "{% url 'tayangan:add_tayangan_to_daftar_unduhan' %}"
+        var data = {
+                id_tayangan: id_tayangan
+            };
+
+        const response = fetch(url, {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrf_token
+            },
+            body: JSON.stringify(data)
+        });
+        
+    }
+
 </script>
 {% endblock %}

@@ -4,6 +4,10 @@
 
 {% block content %}
 {% load calculate %}
+<p style="display:none" id="id-tayangan">{{ id_tayangan }}</p>
+<p style="display:none" id="judul-tayangan">{{ film.judul }}</p>
+<meta name="csrf-token" id="csrf-token" content="{{ csrf_token }}">
+
 <div class="container mt-5">
     <h2 style="text-align: center;">Halaman Series</h2>
     <br>
@@ -21,7 +25,7 @@
                             {% endfor %}
                         </ul>
 
-                        <a href="#" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#downloadModal">Unduh Tayangan</a>
+                        <a href="#" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#downloadModal" onclick="refreshUnduhanModal()">Unduh Tayangan</a>
                         <a href="#" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#favoriteModal">Tambahkan ke Favorit</a>
                     </div>
                 </div>
@@ -73,6 +77,11 @@
             <div class="card">
                 <div class="card-body" id="reviews">
                     <h4>Ulasan</h4>
+                    {% if error %}
+                        <div class="alert alert-danger" role="alert">
+                            {{ error }}
+                        </div>
+                    {% endif %}
                     <form method="POST" action="{% url 'tayangan:submit_review_series' id_tayangan %}">
                         {% csrf_token %}
                         <div class="mb-3">
@@ -117,6 +126,7 @@
     </div>
 </div>
 
+<!-- Modal for add to daftar favorit -->
 <div class="modal fade" id="favoriteModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -126,21 +136,18 @@
             </div>
             <div class="modal-body">
                 <p>Judul daftar favorit:</p>
-                <select name="namaDaftarFavorit">
-                    <option value="80s_stuff">80s stuff</option>
-                    <option value="sinetron_india">sinetron india</option>
-                    <option value="early_2000s_anime">early 2000s anime</option>
-                </select>
+                <select name="namaDaftarFavorit" id="select-daftar-favorit"></select>
             </div>
             <div class="modal-footer">
                 <div style="width: 100%; text-align: center;">
-                    <button type="button" class="btn btn-info" data-bs-dismiss="modal">Tambah</button>
+                    <button type="button" class="btn btn-info" data-bs-dismiss="modal" id="tambah-favorit-button" onclick="addToDaftarFavorit()">Tambah</button>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
+    <!-- Modal for add to daftar unduhan -->
     <div class="modal fade" id="downloadModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -148,9 +155,7 @@
                     <h1 class="modal-title fs-5">Sukses menambahkan tayangan ke daftar unduhan</h1>
                     <button type="button" class="btn-close ml-50" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-                    <p>Selamat! Anda telah berhasil mengunduh [Judul Tayangan] dan akan berlaku hingga [current time + 7 hari]. Cek informasi selengkapnya pada halaman daftar unduhan.</p>
-                </div>
+                <div class="modal-body" id="unduhan-message"></div>
                 <div class="modal-footer">
                     <div style="width: 100%; text-align: center;">
                         <a type="button" class="btn btn-info" href="/daftarunduhan" id="keDaftarUnduhanButton">Ke Daftar Unduhan</a>
@@ -159,5 +164,92 @@
             </div>
         </div>
     </div>
+
 </div>
+
+<script>
+
+    var id_tayangan = document.getElementById("id-tayangan").textContent
+    var judul_tayangan = document.getElementById("judul-tayangan").textContent
+    var csrf_token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+    async function getDaftarFavorit() {
+        return fetch("{% url 'daftarfavorit:show_all_users_daftar_favorit' %}").then((res) => res.json())
+    }
+    
+    async function refreshDaftarFavorit() {
+        document.getElementById("select-daftar-favorit").innerHTML = ""
+        const fetcheddaftarfavorits = await getDaftarFavorit();
+        const daftarfavorits = fetcheddaftarfavorits['daftar_favorit']
+        let htmlString = ''
+
+        if(daftarfavorits.length === 0){
+            htmlString = ``
+        }
+        else{
+            daftarfavorits.forEach((item) => {
+                htmlString += `\n<option value="${item.timestamp}">${item.judul}</option>`
+                })
+        }
+                
+        document.getElementById("select-daftar-favorit").innerHTML = htmlString
+    }
+            
+    refreshDaftarFavorit()
+
+    function addToDaftarFavorit(){
+        var selectElement = document.getElementById("select-daftar-favorit");
+        var selectedValue = selectElement.value;
+
+        var url = "{% url 'tayangan:add_tayangan_to_daftar_favorit' %}"
+        var data = {
+                id_tayangan: id_tayangan,
+                timestamp: selectedValue
+            };
+
+        const response = fetch(url, {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrf_token
+            },
+            body: JSON.stringify(data)
+        });
+
+        window.location.href = `{% url 'daftarfavorit:show_daftar_favorit_tayangan' '123' %}`.replace('123', selectedValue);
+        
+    }
+
+    // ============================================= download
+
+    function refreshUnduhanModal(){
+        var date = new Date();
+        date.setDate(date.getDate() + 7);
+        
+        console.log(date);
+
+        document.getElementById("unduhan-message").innerHTML = `Selamat! Anda telah berhasil mengunduh ${judul_tayangan} dan akan berlaku hingga ${date}. Cek informasi selengkapnya pada halaman daftar unduhan.</p>`
+        
+        addToDaftarUnduhan()
+    }
+    
+    function addToDaftarUnduhan(){
+
+        var url = "{% url 'tayangan:add_tayangan_to_daftar_unduhan' %}"
+        var data = {
+                id_tayangan: id_tayangan
+            };
+
+        const response = fetch(url, {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrf_token
+            },
+            body: JSON.stringify(data)
+        });
+        
+    }
+
+</script>
 {% endblock %}

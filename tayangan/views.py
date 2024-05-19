@@ -1,6 +1,6 @@
 from datetime import datetime,timedelta
 from django.shortcuts import redirect, render
-from django.http import HttpResponseBadRequest, HttpResponseRedirect, JsonResponse, HttpResponseNotFound
+from django.http import HttpResponseBadRequest, HttpResponseRedirect, JsonResponse, HttpResponseNotFound, HttpResponse
 from django.urls import reverse
 from django.utils import timezone
 from psycopg2.extras import RealDictCursor
@@ -8,7 +8,6 @@ from .query import top_10_global, top_10_local
 import logging
 from .query import *
 import json
-from pprint import pprint
 
 from login_register.query import create_connection
 
@@ -48,6 +47,7 @@ def show_tayangan(request):
                 series = cursor.fetchall()
 
                 context = {
+                    'username': request.session.get('username') if request.session.get('username') else '',
                     'top_10_tayangan_global': top_10_tayangan_global,
                     'top_10_tayangan_local': top_10_tayangan_local,
                     'films': films,
@@ -103,6 +103,7 @@ def search_results(request):
                     results.extend(series)
 
                 context = {
+                    'username': request.session.get('username') if request.session.get('username') else '',
                     'results': results,
                     'use_navbar2': bool(request.session.get('username')),
                     'is_authenticated': bool(request.session.get('username')),
@@ -122,6 +123,13 @@ def show_film_details(request, id_tayangan):
     if conn is not None:
         try:
             with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+                # Check if the user has an active package
+                cursor.execute("SELECT * FROM TRANSACTION WHERE username = %s AND end_date_time > NOW()", (request.session.get('username'),))
+                has_active_package = cursor.fetchone() is not None
+
+                if has_active_package is False:
+                    return redirect('404.html')
+
                 # Fetch film and general details
                 cursor.execute("""
                     SELECT t.*, f.url_video_film, f.release_date_film, f.durasi_film 
@@ -146,7 +154,7 @@ def show_film_details(request, id_tayangan):
                                 username,
                                 (EXTRACT(EPOCH FROM (end_date_time - start_date_time)) / 60) AS watch_duration
                             FROM RIWAYAT_NONTON
-                            WHERE id_tayangan = 'b12e8d10-890f-49a6-9e42-7acb6116c1e9'
+                            WHERE id_tayangan = %s
                         ) watch_details
                         INNER JOIN FILM f ON f.id_tayangan = watch_details.id_tayangan
                         WHERE watch_details.watch_duration >= (f.durasi_film * 0.7)
@@ -203,7 +211,10 @@ def show_film_details(request, id_tayangan):
                 """, (id_tayangan,))
                 reviews = cursor.fetchall()
 
+                error = request.GET.get('error')
+
                 context = {
+                    'username': request.session.get('username'),
                     'is_released': is_released,
                     'id_tayangan': id_tayangan,
                     'total_views': total_views,
@@ -212,6 +223,7 @@ def show_film_details(request, id_tayangan):
                     'actors': actors,
                     'writers': writers,
                     'sutradara': sutradara,
+                    'error': error,
                     'reviews': reviews,
                     'use_navbar2': bool(request.session.get('username')),
                     'is_authenticated': bool(request.session.get('username')),
@@ -246,6 +258,7 @@ def submit_review_film(request, id_tayangan):
 
             except Exception as e:
                 logger.error("Error in submitting review: %s", e)
+                return redirect(reverse('tayangan:show_film_details', args=(id_tayangan,)) + '?error=You have already reviewed this film.')
 
             finally:
                 conn.close()
@@ -276,6 +289,7 @@ def submit_review_series(request, id_tayangan):
 
             except Exception as e:
                 logger.error("Error in submitting review: %s", e)
+                return redirect(reverse('tayangan:show_series_details', args=(id_tayangan,)) + '?error=You have already reviewed this series.')
 
             finally:
                 conn.close()
@@ -291,6 +305,13 @@ def show_series_details(request, id_tayangan):
     if conn is not None:
         try:
             with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+                # Check if the user has an active package
+                cursor.execute("SELECT * FROM TRANSACTION WHERE username = %s AND end_date_time > NOW()", (request.session.get('username'),))
+                has_active_package = cursor.fetchone() is not None
+
+                if has_active_package is False:
+                    return redirect('404.html')
+
                 # Fetch series and general details
                 cursor.execute("""
                     SELECT t.*, se.*
@@ -374,7 +395,10 @@ def show_series_details(request, id_tayangan):
                 """, (id_tayangan,))
                 episodes = cursor.fetchall()
 
+                error = request.GET.get('error')
+
                 context = {
+                    'username': request.session.get('username'),
                     'id_tayangan': id_tayangan,
                     'series': series,
                     'total_views': total_views,
@@ -382,6 +406,7 @@ def show_series_details(request, id_tayangan):
                     'actors': actors,
                     'writers': writers,
                     'sutradara': sutradara,
+                    'error': error,
                     'reviews': reviews,
                     'episodes': episodes,
                     'use_navbar2': bool(request.session.get('username')),
@@ -401,6 +426,13 @@ def show_episode_details(request, id_series, sub_judul):
     if conn is not None:
         try:
             with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+                # Check if the user has an active package
+                cursor.execute("SELECT * FROM TRANSACTION WHERE username = %s AND end_date_time > NOW()", (request.session.get('username'),))
+                has_active_package = cursor.fetchone() is not None
+
+                if has_active_package is False:
+                    return redirect('404.html')
+
                 # Fetch all episodes for the series
                 cursor.execute("SELECT judul FROM TAYANGAN WHERE id = %s", (id_series,))
                 series_name = cursor.fetchone()['judul']
@@ -423,6 +455,7 @@ def show_episode_details(request, id_series, sub_judul):
                 episodes = [ep for ep in episodes if ep['sub_judul'] != sub_judul]
 
                 context = {
+                    'username': request.session.get('username'),
                     'is_released': is_released,
                     'series_name': series_name,
                     'episodes': episodes,
@@ -493,7 +526,6 @@ def watch_episode(request, id_series, sub_judul):
             durasi = cursor.fetchone()
 
         durasi_tayangan = durasi[0]
-        print(durasi_tayangan)
 
         # Convert durasi_tayangan to seconds
         durasi_tayangan_seconds = durasi_tayangan * 60
@@ -503,7 +535,6 @@ def watch_episode(request, id_series, sub_judul):
 
         # Compute end_date_time
         end_date_time = (start_date_time + timedelta(seconds=duration_watched_seconds)).strftime('%Y-%m-%d %H:%M:%S')
-        print(start_date_time, end_date_time)
 
         # Save the watching activity to the RIWAYAT_NONTON table
         with connection.cursor() as cursor:
@@ -529,7 +560,7 @@ def add_tayangan_to_daftar_favorit(request):
         username = request.session.get('username')
         print('user : ',username)
     except:
-        return HttpResponseRedirect(reverse("authentication:login_user"))
+        return HttpResponseRedirect(reverse("login_register:login"))
     
     if request.method == 'POST':
         data = json.loads(request.body)
@@ -538,5 +569,23 @@ def add_tayangan_to_daftar_favorit(request):
 
         query_add_to_daftar_favorit(username, timestamp, id_tayangan)
         return HttpResponseRedirect(reverse("daftarfavorit:show_daftar_favorit_tayangan", args=[timestamp]))
+
+    return HttpResponseNotFound()
+
+def add_tayangan_to_daftar_unduhan(request):
+    username = ''
+
+    try:
+        username = request.session.get('username')
+        print('user : ',username)
+    except:
+        return HttpResponseRedirect(reverse("login_register:login"))
+    
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        id_tayangan = data.get('id_tayangan')
+
+        query_add_to_daftar_unduhan(username, id_tayangan)
+        return HttpResponse(b"OK", status=200)
 
     return HttpResponseNotFound()

@@ -8,7 +8,6 @@ from .query import top_10_global, top_10_local
 import logging
 from .query import *
 import json
-from pprint import pprint
 
 from login_register.query import create_connection
 
@@ -124,6 +123,13 @@ def show_film_details(request, id_tayangan):
     if conn is not None:
         try:
             with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+                # Check if the user has an active package
+                cursor.execute("SELECT * FROM TRANSACTION WHERE username = %s AND end_date_time > NOW()", (request.session.get('username'),))
+                has_active_package = cursor.fetchone() is not None
+
+                if has_active_package is False:
+                    return redirect('404.html')
+
                 # Fetch film and general details
                 cursor.execute("""
                     SELECT t.*, f.url_video_film, f.release_date_film, f.durasi_film 
@@ -299,6 +305,13 @@ def show_series_details(request, id_tayangan):
     if conn is not None:
         try:
             with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+                # Check if the user has an active package
+                cursor.execute("SELECT * FROM TRANSACTION WHERE username = %s AND end_date_time > NOW()", (request.session.get('username'),))
+                has_active_package = cursor.fetchone() is not None
+
+                if has_active_package is False:
+                    return redirect('404.html')
+
                 # Fetch series and general details
                 cursor.execute("""
                     SELECT t.*, se.*
@@ -413,6 +426,13 @@ def show_episode_details(request, id_series, sub_judul):
     if conn is not None:
         try:
             with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+                # Check if the user has an active package
+                cursor.execute("SELECT * FROM TRANSACTION WHERE username = %s AND end_date_time > NOW()", (request.session.get('username'),))
+                has_active_package = cursor.fetchone() is not None
+
+                if has_active_package is False:
+                    return redirect('404.html')
+
                 # Fetch all episodes for the series
                 cursor.execute("SELECT judul FROM TAYANGAN WHERE id = %s", (id_series,))
                 series_name = cursor.fetchone()['judul']
@@ -506,7 +526,6 @@ def watch_episode(request, id_series, sub_judul):
             durasi = cursor.fetchone()
 
         durasi_tayangan = durasi[0]
-        print(durasi_tayangan)
 
         # Convert durasi_tayangan to seconds
         durasi_tayangan_seconds = durasi_tayangan * 60
@@ -516,7 +535,6 @@ def watch_episode(request, id_series, sub_judul):
 
         # Compute end_date_time
         end_date_time = (start_date_time + timedelta(seconds=duration_watched_seconds)).strftime('%Y-%m-%d %H:%M:%S')
-        print(start_date_time, end_date_time)
 
         # Save the watching activity to the RIWAYAT_NONTON table
         with connection.cursor() as cursor:

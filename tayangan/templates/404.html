@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block title %}404 Not Found{% endblock %}
+
+{% block content %}
+  <div class="container mt-5">
+    <h1 class="text-center">404 Not Found</h1>
+    <p class="text-center">Maaf, halaman yang Anda minta tidak dapat ditemukan.</p>
+    <div class="text-center">
+      <a href="{% url 'tayangan:show_read_tayangan' %}" class="btn btn-primary">Kembali ke Home</a>
+    </div>
+  </div>
+{% endblock %}

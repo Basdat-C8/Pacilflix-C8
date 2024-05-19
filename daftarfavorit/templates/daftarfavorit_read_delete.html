@@ -9,6 +9,8 @@
     }
 </style>
 
+<meta name="csrf-token" id="csrf-token" content="{{ csrf_token }}">
+
 <div class="container my-5">
     <h1 style="text-align: center;">Daftar Favorit</h1>
     <div class="tab-pane fade show active" id="daftarfavorit-table- container">
@@ -17,6 +19,8 @@
 </div>
 
 <script>
+    var csrf_token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
     async function getDaftarFavorit() {
         return fetch("{% url 'daftarfavorit:show_all_users_daftar_favorit' %}").then((res) => res.json())
     }
@@ -40,17 +44,12 @@
                 </tr>
                 </thead>`
             daftarfavorits.forEach((item) => {
-                htmlString += `\n<tr onclick=visitDaftarFavorit('${item.timestamp}')>
-                    <td>${item.judul}</td>
-                    <td>${item.timestamp.replaceAll("T", ", ")}</td>
+                htmlString += `\n<tr>
+                    <td onclick=visitDaftarFavorit('${item.timestamp}')>${item.judul}</td>
+                    <td onclick=visitDaftarFavorit('${item.timestamp}')>${item.timestamp.replaceAll("T", ", ")}</td>
                     <td>
                         <center>
-                            <form action="{% url 'daftarfavorit:delete' %}" method="post">
-                                {% csrf_token %}
-                                <input type="hidden" name="timestamp" value="${item.timestamp}">
-                                <input type="hidden" name="username" value="${item.username}">
-                                <button type="submit" class="btn btn-danger">Delete</button>
-                            </form>
+                            <button type="submit" class="btn btn-danger" onclick="deleteDaftarFavorit('${item.timestamp}', '${item.username}')">Delete</button>    
                         </center>
                     </td>
                     </tr>`
@@ -65,6 +64,28 @@
     async function visitDaftarFavorit(timestamp){
         console.log(timestamp)
         window.location.href = `{% url 'daftarfavorit:show_daftar_favorit_tayangan' '123' %}`.replace('123', timestamp);
+    }
+
+    async function deleteDaftarFavorit(timestamp, username){
+        var url = "{% url 'daftarfavorit:delete' %}"
+
+        var data = {
+                timestamp: timestamp,
+                username: username
+            };
+
+        const response = await fetch(url, {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrf_token
+            },
+            body: JSON.stringify(data)
+        }).then((res) => res.json());
+
+        if(response['message'] == 'success'){
+            refreshDaftarFavorit()
+        }
     }
 
 </script>

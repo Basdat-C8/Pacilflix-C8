@@ -40,5 +40,10 @@ def query_delete_unduhan(id_tayangan, timestamp, username):
     connection = create_connection()
     cursor = connection.cursor()
 
-    cursor.execute(f"delete from tayangan_terunduh where id_tayangan='{id_tayangan}' AND username='{username}' AND timestamp='{timestamp}';")
-    connection.commit()
+    try:
+        cursor.execute(f"delete from tayangan_terunduh where id_tayangan='{id_tayangan}' AND username='{username}' AND timestamp='{timestamp}';")
+        connection.commit()
+        return "success"
+
+    except psycopg2.Error as err:
+        return str(err)

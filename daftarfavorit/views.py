@@ -4,6 +4,7 @@ from django.http import JsonResponse
 from django.urls import reverse
 from .query import *
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound
+import json
 
 # ========================================= show
 
@@ -13,7 +14,7 @@ def show_daftar_favorit(request):
         username = request.session.get('username')
         print('user : ',username)
     except:
-        return HttpResponseRedirect(reverse("authentication:login_user"))
+        return HttpResponseRedirect(reverse("login_register:login"))
     
     context = {'use_navbar2': True, 'username':request.session.get('username')}
     return render(request, 'daftarfavorit_read_delete.html', context)
@@ -24,7 +25,7 @@ def show_daftar_favorit_tayangan(request, timestamp):
         username = request.session.get('username')
         print('user : ',username)
     except:
-        return HttpResponseRedirect(reverse("authentication:login_user"))
+        return HttpResponseRedirect(reverse("login_register:login"))
     
     daftar_favorit = query_get_specific_daftar_favorit(timestamp, username)
     judul_daftar_favorit = daftar_favorit[2]
@@ -45,7 +46,7 @@ def get_all_users_daftar_favorit(request):
         username = request.session.get('username')
         print('user : ',username)
     except:
-        return HttpResponseRedirect(reverse("authentication:login_user"))
+        return HttpResponseRedirect(reverse("login_register:login"))
     
     get_daftar_favorit = query_get_all_users_daftar_favorit(username)
 
@@ -65,7 +66,7 @@ def get_tayangan_daftar_favorit(request, timestamp):
         username = request.session.get('username')
         print('user : ',username)
     except:
-        return HttpResponseRedirect(reverse("authentication:login_user"))
+        return HttpResponseRedirect(reverse("login_register:login"))
     
     get_tayangan = query_get_tayangan_daftar_favorit(timestamp, username)
 
@@ -84,19 +85,21 @@ def get_tayangan_daftar_favorit(request, timestamp):
 
 def delete_daftar_favorit(request):
     if request.method == 'POST':
-        timestamp = request.POST.get('timestamp')
-        username = request.POST.get('username')
+        data = json.loads(request.body)
+        timestamp = data.get('timestamp')
+        username = data.get('username')
         query_delete_daftar_favorit(timestamp, username)
-        return HttpResponseRedirect(reverse("daftarfavorit:show_daftar_favorit"))
+        return JsonResponse({'message':'success'})
 
     return HttpResponseNotFound()
 
 def delete_tayangan(request):
     if request.method == 'POST':
-        id_tayangan = request.POST.get('id_tayangan')
-        timestamp = request.POST.get('timestamp')
-        username = request.POST.get('username')
+        data = json.loads(request.body)
+        id_tayangan = data.get('id_tayangan')
+        timestamp = data.get('timestamp')
+        username = data.get('username')
         query_delete_tayangan(id_tayangan, timestamp, username)
-        return HttpResponseRedirect(reverse("daftarfavorit:show_daftar_favorit_tayangan", args=[timestamp]))
+        return JsonResponse({'message':'success'})
 
     return HttpResponseNotFound()

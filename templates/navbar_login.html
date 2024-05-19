@@ -59,8 +59,8 @@
   <a id="brand" href="#"><span class="pacil">Pacil</span><span class="flix">Flix</span></a>
   <a href="{% url 'tayangan:show_read_tayangan' %}">Daftar Tayangan</a>
   <a href="#">Daftar Kontributor</a>
-  <a href="#">Kelola Daftar Favorit</a>
-  <a href="#">Kelola Daftar Unduhan</a>
+  <a href="{% url 'daftarfavorit:show_daftar_favorit' %}">Kelola Daftar Favorit</a>
+  <a href="{% url 'daftarunduhan:show_daftar_unduhan' %}">Kelola Daftar Unduhan</a>
   <a href="#">Kelola Langganan</a>
   <a href="#" class="user">{{ username }}</a>
   <a href="{% url 'logout' %}" class="logout">Logout</a> <!-- Updated link for logout -->

@@ -19,6 +19,7 @@
                         <h3 class="card-title">Judul: <span id="filmTitle">{{ film.judul }}</span></h3>
                         <!-- Progress Bar -->
                         <form method="POST" action="{% url 'tayangan:watch_film' id_tayangan %}" id="watchForm">
+                            {% if is_released %}
                             {% csrf_token %}
                             <label for="progress">Progress:</label>
                             <input type="range" id="progress" name="progress" min="0" max="100" value="0" oninput="updateProgressValue()">
@@ -27,12 +28,11 @@
                             <input type="hidden" id="startDateTime" name="startDateTime">
                             <input type="hidden" id="startPercent" name="startPercent">
                             <input type="hidden" id="endPercent" name="endPercent">
-                            {% if is_released %}
                             <button type="button" id="watchButton" class="btn btn-primary">Tonton</button>
                             {% endif %}
+                            <a href="#" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#downloadModal">Unduh Tayangan</a>
+                            <a href="#" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#favoriteModal">Tambahkan ke Favorit</a>
                         </form><br>
-                        <a href="#" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#downloadModal">Unduh Tayangan</a>
-                        <a href="#" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#favoriteModal">Tambahkan ke Favorit</a>
                     </div>
                 </div>
             </div>
@@ -86,6 +86,11 @@
             <div class="card">
                 <div class="card-body" id="reviews">
                     <h4>Ulasan</h4>
+                    {% if error %}
+                        <div class="alert alert-danger" role="alert">
+                            {{ error }}
+                        </div>
+                    {% endif %}
                     <form method="POST" action="{% url 'tayangan:submit_review_film' id_tayangan %}">
                         {% csrf_token %}
                         <div class="mb-3">
@@ -213,6 +218,57 @@
         progress.style.setProperty('--progress-percent', value + '%');
     }
 
+    window.onload = updateProgressValue;
+
+    var id_tayangan = document.getElementById("id-tayangan").textContent
+    var csrf_token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+    async function getDaftarFavorit() {
+        return fetch("{% url 'daftarfavorit:show_all_users_daftar_favorit' %}").then((res) => res.json())
+    }
+    
+    async function refreshDaftarFavorit() {
+        document.getElementById("select-daftar-favorit").innerHTML = ""
+        const fetcheddaftarfavorits = await getDaftarFavorit();
+        const daftarfavorits = fetcheddaftarfavorits['daftar_favorit']
+        let htmlString = ''
+
+        if(daftarfavorits.length === 0){
+            htmlString = ``
+        }
+        else{
+            daftarfavorits.forEach((item) => {
+                htmlString += `\n<option value="${item.timestamp}">${item.judul}</option>`
+                })
+        }
+                
+        document.getElementById("select-daftar-favorit").innerHTML = htmlString
+    }
+            
+    refreshDaftarFavorit()
+
+    async function addToDaftarFavorit(){
+        var selectElement = document.getElementById("select-daftar-favorit");
+        var selectedValue = selectElement.value;
+
+        var url = "{% url 'tayangan:add_tayangan_to_daftar_favorit' %}"
+        var data = {
+                id_tayangan: id_tayangan,
+                timestamp: selectedValue
+            };
+
+        const response = await fetch(url, {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrf_token
+            },
+            body: JSON.stringify(data)
+        });
+
+        window.location.href = `{% url 'daftarfavorit:show_daftar_favorit_tayangan' '123' %}`.replace('123', selectedValue);
+        
+    }
 
     document.getElementById('watchButton').addEventListener('click', function() {
     const slider = document.getElementById('progress');
@@ -269,57 +325,5 @@
         endSliderPosition = 0;
     }
 });
-
-    window.onload = updateProgressValue;
-
-    var id_tayangan = document.getElementById("id-tayangan").textContent
-    var csrf_token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
-    async function getDaftarFavorit() {
-        return fetch("{% url 'daftarfavorit:show_all_users_daftar_favorit' %}").then((res) => res.json())
-    }
-    
-    async function refreshDaftarFavorit() {
-        document.getElementById("select-daftar-favorit").innerHTML = ""
-        const fetcheddaftarfavorits = await getDaftarFavorit();
-        const daftarfavorits = fetcheddaftarfavorits['daftar_favorit']
-        let htmlString = ''
-
-        if(daftarfavorits.length === 0){
-            htmlString = ``
-        }
-        else{
-            daftarfavorits.forEach((item) => {
-                htmlString += `\n<option value="${item.timestamp}">${item.judul}</option>`
-                })
-        }
-                
-        document.getElementById("select-daftar-favorit").innerHTML = htmlString
-    }
-            
-    refreshDaftarFavorit()
-
-    async function addToDaftarFavorit(){
-        var selectElement = document.getElementById("select-daftar-favorit");
-        var selectedValue = selectElement.value;
-
-        var url = "{% url 'tayangan:add_tayangan_to_daftar_favorit' %}"
-        var data = {
-                id_tayangan: id_tayangan,
-                timestamp: selectedValue
-            };
-
-        const response = await fetch(url, {
-            method: "POST",
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': csrf_token
-            },
-            body: JSON.stringify(data)
-        });
-
-        window.location.href = `{% url 'daftarfavorit:show_daftar_favorit_tayangan' '123' %}`.replace('123', selectedValue);
-        
-    }
 </script>
 {% endblock %}

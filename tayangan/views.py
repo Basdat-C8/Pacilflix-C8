@@ -148,7 +148,7 @@ def show_film_details(request, id_tayangan):
                                 username,
                                 (EXTRACT(EPOCH FROM (end_date_time - start_date_time)) / 60) AS watch_duration
                             FROM RIWAYAT_NONTON
-                            WHERE id_tayangan = 'b12e8d10-890f-49a6-9e42-7acb6116c1e9'
+                            WHERE id_tayangan = %s
                         ) watch_details
                         INNER JOIN FILM f ON f.id_tayangan = watch_details.id_tayangan
                         WHERE watch_details.watch_duration >= (f.durasi_film * 0.7)

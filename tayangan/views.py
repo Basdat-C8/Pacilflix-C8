@@ -48,6 +48,7 @@ def show_tayangan(request):
                 series = cursor.fetchall()
 
                 context = {
+                    'username': request.session.get('username') if request.session.get('username') else '',
                     'top_10_tayangan_global': top_10_tayangan_global,
                     'top_10_tayangan_local': top_10_tayangan_local,
                     'films': films,
@@ -103,6 +104,7 @@ def search_results(request):
                     results.extend(series)
 
                 context = {
+                    'username': request.session.get('username') if request.session.get('username') else '',
                     'results': results,
                     'use_navbar2': bool(request.session.get('username')),
                     'is_authenticated': bool(request.session.get('username')),
@@ -203,7 +205,10 @@ def show_film_details(request, id_tayangan):
                 """, (id_tayangan,))
                 reviews = cursor.fetchall()
 
+                error = request.GET.get('error')
+
                 context = {
+                    'username': request.session.get('username'),
                     'is_released': is_released,
                     'id_tayangan': id_tayangan,
                     'total_views': total_views,
@@ -212,6 +217,7 @@ def show_film_details(request, id_tayangan):
                     'actors': actors,
                     'writers': writers,
                     'sutradara': sutradara,
+                    'error': error,
                     'reviews': reviews,
                     'use_navbar2': bool(request.session.get('username')),
                     'is_authenticated': bool(request.session.get('username')),
@@ -246,6 +252,7 @@ def submit_review_film(request, id_tayangan):
 
             except Exception as e:
                 logger.error("Error in submitting review: %s", e)
+                return redirect(reverse('tayangan:show_film_details', args=(id_tayangan,)) + '?error=You have already reviewed this film.')
 
             finally:
                 conn.close()
@@ -276,6 +283,7 @@ def submit_review_series(request, id_tayangan):
 
             except Exception as e:
                 logger.error("Error in submitting review: %s", e)
+                return redirect(reverse('tayangan:show_series_details', args=(id_tayangan,)) + '?error=You have already reviewed this series.')
 
             finally:
                 conn.close()
@@ -374,7 +382,10 @@ def show_series_details(request, id_tayangan):
                 """, (id_tayangan,))
                 episodes = cursor.fetchall()
 
+                error = request.GET.get('error')
+
                 context = {
+                    'username': request.session.get('username'),
                     'id_tayangan': id_tayangan,
                     'series': series,
                     'total_views': total_views,
@@ -382,6 +393,7 @@ def show_series_details(request, id_tayangan):
                     'actors': actors,
                     'writers': writers,
                     'sutradara': sutradara,
+                    'error': error,
                     'reviews': reviews,
                     'episodes': episodes,
                     'use_navbar2': bool(request.session.get('username')),
@@ -423,6 +435,7 @@ def show_episode_details(request, id_series, sub_judul):
                 episodes = [ep for ep in episodes if ep['sub_judul'] != sub_judul]
 
                 context = {
+                    'username': request.session.get('username'),
                     'is_released': is_released,
                     'series_name': series_name,
                     'episodes': episodes,

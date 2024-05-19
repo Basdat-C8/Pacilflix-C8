@@ -73,6 +73,11 @@
             <div class="card">
                 <div class="card-body" id="reviews">
                     <h4>Ulasan</h4>
+                    {% if error %}
+                        <div class="alert alert-danger" role="alert">
+                            {{ error }}
+                        </div>
+                    {% endif %}
                     <form method="POST" action="{% url 'tayangan:submit_review_series' id_tayangan %}">
                         {% csrf_token %}
                         <div class="mb-3">
